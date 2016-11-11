@@ -26,12 +26,6 @@ class TourFile{
 	getTitle(){
 		return this.title;
 	}
-	// isLetter(str) {
-	// 	return str.length === 1 && str.match(/[a-z]/i);
-	// }
-	// isNumber(str) {
-	// 	return str.length === 1 && str.match(/[0-9]/i);
-	// }
 	initialiseSize(string_line){
 		var line = ""
 		for (var i = 0; i < len(string_line); i++){
@@ -86,7 +80,7 @@ class TourFile{
 		}
 	}
 	fillMatrix(data){
-		var i = 0;
+		var k = 0;
 		//plot data into matrix, runs in o(n) time.
 		for (var i = 0; i < this.matrix.length; i++){
 			for (var j = 0; j < this.matrix.length; j++){
@@ -103,7 +97,11 @@ class TourFile{
 					}
 				}
 			}
-			console.log("loading.." + i/this.matrix.length + "%");
+			var v = (i/this.matrix.length * 100).toFixed(0);
+			if (v > k){
+				console.log("loading matrix: " + v + "%");
+			}
+			k = v;
 		}
 	}
 	sanitiseTours(data){
@@ -145,6 +143,16 @@ class TourFile{
 		file.write(tour.toString() + '\n');
 		file.end();
 		console.log("File written to " + filename);
+	}
+	shuffle(array){
+		// Durstenfeld shuffle algorithm; shuffles arrays in place.
+		for (var i = array.length - 1; i > 0; i--) {
+	        var j = Math.floor(Math.random() * (i + 1));
+	        var temp = array[i];
+	        array[i] = array[j];
+	        array[j] = temp;
+    	}
+    	return array;
 	}
 }
 function brute(map){
@@ -198,12 +206,13 @@ class Human{
 
 class Genetic{
 	constructor(map){
+		console.log("running Genetic Algorithm");
 		this.map = map;
 		this.mutation_rate = 0.1;
 		// this.crossover_rate = 0.3;
 		this.population_size = 5000;
 		this.population = []; // randomly generated initial population
-		this.generations = 100;
+		this.generations = 1000;
 		this.generatePopulation();
 		this.lapGenerations();
 	}
@@ -260,7 +269,7 @@ class Genetic{
 			}
 		}
 		// console.log("missing: " + missing);
-		missing = this.shuffle(missing);
+		missing = this.map.shuffle(missing);
 		// console.log("mis_shuf: " + missing)
 		// console.log(x);
 		x.push.apply(x, missing);
@@ -305,17 +314,13 @@ class Genetic{
 				// check for master human.
 				if (z.size < supreme.size){
 					supreme = z;
-					// console.log("New Supreme: Generation ", i, ": ", supreme.size);
-					// this.map.writeFile(0, supreme.size, supreme.tour);
 				}
 			}
 			// will need to sort the array based on how good the population is.
 			next_population.sort();
-			// console.log(next_population);
 
 			this.population = next_population;
 		}
-		// console.log("Supreme: " + supreme.size + " " + supreme.tour);
 
 		for (var i = 0; i < supreme.tour.length; i++){
 			supreme.tour[i] += 1;
@@ -323,22 +328,12 @@ class Genetic{
 		console.log("MASTER: " + supreme.size + " " + supreme.tour);
 		this.map.writeFile(0, supreme.size, supreme.tour);
 	}
-	shuffle(array){
-		// Durstenfeld shuffle algorithm; shuffles arrays in place.
-		for (var i = array.length - 1; i > 0; i--) {
-	        var j = Math.floor(Math.random() * (i + 1));
-	        var temp = array[i];
-	        array[i] = array[j];
-	        array[j] = temp;
-    	}
-    	return array;
-	}
 	generateRandom(){
 		var array = []
 		for (var i = 0; i < this.map.size; i++){
 			array.push(i);
 		}
-		array = this.shuffle(array);
+		array = this.map.shuffle(array);
 		return array;
 	}
 	mutate(k){
@@ -365,25 +360,12 @@ class Annealing{
 		var length;
 		this.anneal();
 	}
-
-	shuffle(array){
-		// Durstenfeld shuffle algorithm; shuffles arrays in place.
-		for (var i = array.length - 1; i > 0; i--) {
-	        var j = Math.floor(Math.random() * (i + 1));
-	        var temp = array[i];
-	        array[i] = array[j];
-	        array[j] = temp;
-    	}
-    	// console.log(array);
-    	return array;
-	}
-
 	generateRandom(){
 		var array = []
 		for (var i = 0; i < this.map.size; i++){
 			array.push(i);
 		}
-		array = this.shuffle(array);
+		array = this.map.shuffle(array);
 		return array;
 	}
 
@@ -457,10 +439,10 @@ class Annealing{
 // var map4 = new TourFile("cityfiles/AISearchfile026.txt");
 // var map5 = new TourFile("cityfiles/AISearchfile042.txt");
 // var map6 = new TourFile("cityfiles/AISearchfile048.txt");
-var map7 = new TourFile("cityfiles/AISearchfile058.txt");
+// var map7 = new TourFile("cityfiles/AISearchfile058.txt");
 // var map8 = new TourFile("cityfiles/AISearchfile175.txt");
 // var map9 = new TourFile("cityfiles/AISearchfile180.txt");
-// var map10 = new TourFile("cityfiles/AISearchfile535.txt");
+var map10 = new TourFile("cityfiles/AISearchfile535.txt");
 // console.log(map1.matrix);
 // brute(map1);
 // var l = new Annealing(map1);
