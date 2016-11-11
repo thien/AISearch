@@ -11,7 +11,7 @@ class TourFile{
 		this.size = 0;
 		this.matrix = [];
 		this.readItem();
-		var l = new Annealing(this);
+		// var l = new Annealing(this);
 		var k = new Genetic(this);
 	}
 	getMatrix(){
@@ -26,12 +26,12 @@ class TourFile{
 	getTitle(){
 		return this.title;
 	}
-	isLetter(str) {
-		return str.length === 1 && str.match(/[a-z]/i);
-	}
-	isNumber(str) {
-		return str.length === 1 && str.match(/[0-9]/i);
-	}
+	// isLetter(str) {
+	// 	return str.length === 1 && str.match(/[a-z]/i);
+	// }
+	// isNumber(str) {
+	// 	return str.length === 1 && str.match(/[0-9]/i);
+	// }
 	initialiseSize(string_line){
 		var line = ""
 		for (var i = 0; i < len(string_line); i++){
@@ -57,8 +57,9 @@ class TourFile{
 		// splits data by comma.
 		data = data.split(",");
 		// extract name (first item in array)
-		this.name = data.shift();
-		console.log("Map " + this.name + " is initialising");
+		// data.shift().split("l")[1].replace(/\s/g, '');
+		this.title = data.shift().split("=")[1].replace(/\s/g, '');
+		console.log("Map " + this.title + " is initialising");
 		// extract size (first item in array)
 		this.size = data.shift().replace(/[^0-9\-]/g,'');
 		// sanitise tour data.
@@ -85,6 +86,7 @@ class TourFile{
 		}
 	}
 	fillMatrix(data){
+		var i = 0;
 		//plot data into matrix, runs in o(n) time.
 		for (var i = 0; i < this.matrix.length; i++){
 			for (var j = 0; j < this.matrix.length; j++){
@@ -101,6 +103,7 @@ class TourFile{
 					}
 				}
 			}
+			console.log("loading.." + i/this.matrix.length + "%");
 		}
 	}
 	sanitiseTours(data){
@@ -109,9 +112,10 @@ class TourFile{
 		}
 	}
 	crawl(list){
+		// console.log("running crawl");
 		var size = 0;
-		var start_city = 0;
-		var current_pos = 0;
+		var start_city = list[0];
+		var current_pos = list[0];
 
 		for (var i = 0; i < list.length -1; i++){
 			var next_pos = list[i+1]
@@ -121,40 +125,28 @@ class TourFile{
 		size += parseFloat(this.matrix[current_pos][start_city]);
 		return size;
 	}
-}
+	writeFile(bin, toursize, tour){
+		var loc = "cmkv68/TourFile";
+		var filename = "tour" + this.title;
+		filename += ".txt";
+		console.log("Writing to file...");
 
-function writeFile(bin, map, toursize, tour){
-	var loc = "cmkv68/TourFile";
-	var filename = "tourAISearchfile";
-	if (map.size < 100){
-		if (map.size < 10){
-			filename += "00" + map.size;
+		if (bin == 0){
+			loc += "A/";
+		} else {
+			loc += "B/";
 		}
-		else {
-			filename += 0 + map.size;
-		}
-	} else {
-		filename += map.size;
-	}
-	filename += ".txt";
-	console.log("Writing to file...");
 
-	if (bin == 0){
-		loc += "A/";
-	} else {
-		loc += "B/";
+		var file = fs.createWriteStream(loc + filename);
+		file.on('error', function(err) { /* error handling */ });
+		file.write("NAME = " + this.title + ',\n');
+		file.write("TOURSIZE = " + this.size + ',\n');
+		file.write("LENGTH = " + toursize + ',\n');
+		file.write(tour.toString() + '\n');
+		file.end();
+		console.log("File written to " + filename);
 	}
-
-	var file = fs.createWriteStream(loc + filename);
-	file.on('error', function(err) { /* error handling */ });
-	file.write(map.name + ',\n');
-	file.write("TOURSIZE = " + map.size + ',\n');
-	file.write("LENGTH = " + toursize + ',\n');
-	file.write(tour.toString() + '\n');
-	file.end();
-	console.log("File written to " + filename);
 }
-
 function brute(map){
 	// console.log(map.matrix);
 	var smallest_toursize = Number.MAX_VALUE;
@@ -208,10 +200,10 @@ class Genetic{
 	constructor(map){
 		this.map = map;
 		this.mutation_rate = 0.1;
-		this.crossover_rate = 0.3;
-		this.population_size = 10;
+		// this.crossover_rate = 0.3;
+		this.population_size = 5000;
 		this.population = []; // randomly generated initial population
-		this.generations = 10;
+		this.generations = 100;
 		this.generatePopulation();
 		this.lapGenerations();
 	}
@@ -295,32 +287,26 @@ class Genetic{
 	lapGenerations(){
 		var supreme = new Human([],Number.MAX_VALUE);
 		for(var i = 0; i < this.generations; i++){
+			// console.log("Generation " + i);
 			var next_population = [];
 			var fittest_individual = new Human([],0);
 			for (var j in this.population){
-				var rand1 = Math.ceil(Math.random() * this.population_size )-1
-				var rand2 = Math.ceil(Math.random() * this.population_size )-1
+				var rand1 = Math.ceil(Math.random() * this.population_size) - 1;
+				var rand2 = Math.ceil(Math.random() * this.population_size) - 1;
 
 				var x = this.population[rand1];
 				var y = this.population[rand2];
 
-				// console.log("------")
-				// console.log("making new human")
-				var z = new Human([],0);
-				// console.log("initiating crossover")
-				z = this.crossover(x,y);
-				// console.log("initiating mutation")
-				// z.tour = this.mutate(z.tour);
-				// console.log("initiating crawl")
-				// z.size = this.map.crawl(z.tour);
-				// console.log("new human: " + z.size, " - " + z.tour);
-
+				// make new human.
+				var z = this.crossover(x,y);
 
 				next_population.push(z);
 
+				// check for master human.
 				if (z.size < supreme.size){
 					supreme = z;
-					console.log("Generation ", j, ": ", next_population[0].length, " Supreme: ", supreme.size);
+					// console.log("New Supreme: Generation ", i, ": ", supreme.size);
+					// this.map.writeFile(0, supreme.size, supreme.tour);
 				}
 			}
 			// will need to sort the array based on how good the population is.
@@ -329,13 +315,13 @@ class Genetic{
 
 			this.population = next_population;
 		}
-		console.log("Supreme: " + supreme.size + " " + supreme.tour);
+		// console.log("Supreme: " + supreme.size + " " + supreme.tour);
 
 		for (var i = 0; i < supreme.tour.length; i++){
 			supreme.tour[i] += 1;
 		}
-
-		writeFile(0, this.map, supreme.size, supreme.tour);
+		console.log("MASTER: " + supreme.size + " " + supreme.tour);
+		this.map.writeFile(0, supreme.size, supreme.tour);
 	}
 	shuffle(array){
 		// Durstenfeld shuffle algorithm; shuffles arrays in place.
@@ -410,7 +396,7 @@ class Annealing{
 		this.bigboy = this.generateRandom();
 		this.length = this.map.crawl(this.bigboy);
 		// console.log(this.bigboy);
-		console.log(this.length);
+		// console.log(this.length);
 		console.log("running annealing");
 		while (T > T_min){
 			for (var i = 0; i < rounds; i++){
@@ -421,7 +407,7 @@ class Annealing{
 				if (ap > Math.random()){
 					this.bigboy = new_sol;
 					this.length = new_cost;
-					console.log(this.length);
+					// console.log(this.length);
 				}
 			}
 			T = T * alpha
@@ -430,7 +416,7 @@ class Annealing{
 		for (var i = 0; i < this.bigboy.length; i++){
 			this.bigboy[i] += 1;
 		}
-		writeFile(1, this.map, this.length, this.bigboy);
+		this.map.writeFile(1, this.length, this.bigboy);
 		// console.log(this.bigboy);
 	}
 
@@ -464,13 +450,14 @@ class Annealing{
 		return k;
 	}
 }
-var map1 = new TourFile("cityfiles/AISearchfile012.txt");
+// var map1 = new TourFile("cityfiles/AISearchtestcase.txt");
+// var map1 = new TourFile("cityfiles/AISearchfile012.txt");
 // var map2 = new TourFile("cityfiles/AISearchfile017.txt");
 // var map3 = new TourFile("cityfiles/AISearchfile021.txt");
 // var map4 = new TourFile("cityfiles/AISearchfile026.txt");
 // var map5 = new TourFile("cityfiles/AISearchfile042.txt");
 // var map6 = new TourFile("cityfiles/AISearchfile048.txt");
-// var map7 = new TourFile("cityfiles/AISearchfile058.txt");
+var map7 = new TourFile("cityfiles/AISearchfile058.txt");
 // var map8 = new TourFile("cityfiles/AISearchfile175.txt");
 // var map9 = new TourFile("cityfiles/AISearchfile180.txt");
 // var map10 = new TourFile("cityfiles/AISearchfile535.txt");
@@ -481,3 +468,4 @@ var map1 = new TourFile("cityfiles/AISearchfile012.txt");
 
 function puts(error, stdout, stderr) { sys.puts(stdout) }
 exec("python validtourcheck.py", puts);
+// console.log(fs.readFileSync("trace.txt", 'utf8'));
