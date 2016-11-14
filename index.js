@@ -1,8 +1,8 @@
 "use strict";
 var fs = require('fs');
-var comb = require('js-combinatorics');
-var sys = require('sys');
+var sys = require('util');
 var exec = require('child_process').exec;
+var brute = require('./brute.js');
 
 class TourFile{
 	constructor(location){
@@ -11,8 +11,18 @@ class TourFile{
 		this.size = 0;
 		this.matrix = [];
 		this.readItem();
-		// var l = new Annealing(this);
+		this.currentBestA = 901239123091209390123;
+		this.currentBestB = 901239123091209390123;
+		// this.loadResult();
+		console.log(this.currentBestA);
+		console.log(this.currentBestB);
+
+		// Runs Brute Force Algorithm
+		// brute.bruteforce(this);
+
+		var l = new Annealing(this);
 		var k = new Genetic(this);
+
 	}
 	getMatrix(){
 		return this.matrix;
@@ -123,27 +133,6 @@ class TourFile{
 		size += parseFloat(this.matrix[current_pos][start_city]);
 		return size;
 	}
-	writeFile(bin, toursize, tour){
-		var loc = "cmkv68/TourFile";
-		var filename = "tour" + this.title;
-		filename += ".txt";
-		console.log("Writing to file...");
-
-		if (bin == 0){
-			loc += "A/";
-		} else {
-			loc += "B/";
-		}
-
-		var file = fs.createWriteStream(loc + filename);
-		file.on('error', function(err) { /* error handling */ });
-		file.write("NAME = " + this.title + ',\n');
-		file.write("TOURSIZE = " + this.size + ',\n');
-		file.write("LENGTH = " + toursize + ',\n');
-		file.write(tour.toString() + '\n');
-		file.end();
-		console.log("File written to " + filename);
-	}
 	shuffle(array){
 		// Durstenfeld shuffle algorithm; shuffles arrays in place.
 		for (var i = array.length - 1; i > 0; i--) {
@@ -154,65 +143,101 @@ class TourFile{
     	}
     	return array;
 	}
-}
-function brute(map){
-	// console.log(map.matrix);
-	var smallest_toursize = Number.MAX_VALUE;
-	var fastest_order = [];
+	writeFile(bin, toursize, tour){
+		var check = 0;
 
-	var init = [];
-	for (i = 0; i < map.matrix.length; i++){
-		init.push(i);
-	}
-
-	// array of permutations
-	var permutations = comb.permutation(init).toArray();
-
-	// iterate through permutations
-	for (var i = 0; i < permutations.length; i++){
-		//initialise size of tour
-		var toursize = 0;
-		var start_city = permutations[i][0];
-		var current_pos = start_city;
-
-
-		for (var j = 0; j < permutations[i].length-1; j++){
-			// console.log(permutations[i])
-			var next_pos = permutations[i][j+1]
-			// console.log(map.matrix[current_pos][next_pos]);
-			toursize += parseFloat(map.matrix[current_pos][next_pos]);
-			// console.log(toursize);
-			current_pos = next_pos;
-
+		if (bin == 0){
+			check = this.currentBestA;
 		}
-		// add last connection back to the original.
-		toursize += parseFloat(map.matrix[current_pos][start_city]);
-
-		if (toursize < smallest_toursize){
-			smallest_toursize = toursize;
-			fastest_order = permutations[i];
+		else {
+			check = this.currentBestB;
 		}
-		// console.log(toursize, "", permutations[i]);
-	}
-	console.log("smallest: ", smallest_toursize, " ", fastest_order);
-}
 
+		if (check > toursize){
+			var loc = "cmkv68/TourFile";
+			var filename = "tour" + this.title;
+			filename += ".txt";
+			console.log("Writing to file...");
+
+			if (bin == 0){
+				loc += "A/";
+			} else {
+				loc += "B/";
+			}
+			console.log("wahoey " + loc + filename);
+			var file = fs.createWriteStream(loc + filename);
+			file.on('error', function(err) { /* error handling */ });
+			file.write("NAME = " + this.title + ',\n');
+			file.write("TOURSIZE = " + this.size + ',\n');
+			file.write("LENGTH = " + toursize + ',\n');
+			file.write(tour.toString() + '\n');
+			file.end();
+			console.log("File written to " + filename);
+		} else {
+			console.log("toursize isn't better than best on file (currently " + check+")");
+		}
+	}
+	loadResult(bin){
+		console.log("----")
+		console.log("loading results")
+		var loc = "cmkv68/TourFile";
+
+		var filename = "tour" + this.title + ".txt";
+		console.log("Searching for file " + filename);
+
+		console.log("initialising A")
+		fs.access(loc + "A/" + filename, fs.F_OK, function(err) {
+		    if (!err) {
+
+		        var data = fs.readFileSync(loc + "A/" + filename, 'utf8');
+				// console.log("File Found;");
+				if (data){
+					data = data.replace(/(\r\n|\n|\r)/gm,"").split(",");
+					console.log(data);
+					this.currentBestA = data[2].split("=")[1].replace(/\s/g, '');
+					console.log("File Found; best length:", this.currentBestA);
+				} else {
+					console.log("file found but nothing inside");
+				}
+		    } else {
+		        console.log("File isn't found; continue.");
+		    }
+		});
+		console.log("initialising B")
+		fs.access(loc  + "B/" + filename, fs.F_OK, function(err) {
+		    if (!err) {
+		        var data = fs.readFileSync(loc  + "B/" + filename, 'utf8');
+				// console.log("File Found;");
+				if (data){
+					data = data.replace(/(\r\n|\n|\r)/gm,"").split(",");
+					console.log(data);
+					this.currentBestB = data[2].split("=")[1].replace(/\s/g, '');
+					console.log("File Found; best length:", this.currentBestB);
+				} else {
+					console.log("file found but nothing inside.");
+				}
+		    } else {
+		        console.log("File isn't found; continue.");
+		    }
+		});
+		console.log("----")
+	}
+}
 class Human{
 	constructor(t,s){
 		this.tour = t;
 		this.size = s;
 	}
 }
-
 class Genetic{
 	constructor(map){
 		console.log("running Genetic Algorithm");
 		this.map = map;
 		this.mutation_rate = 0.1;
 		// this.crossover_rate = 0.3;
-		this.population_size = 5000;
+		this.population_size = 10000;
 		this.population = []; // randomly generated initial population
-		this.generations = 1000;
+		this.generations = 100000;
 		this.generatePopulation();
 		this.lapGenerations();
 	}
@@ -314,6 +339,9 @@ class Genetic{
 				// check for master human.
 				if (z.size < supreme.size){
 					supreme = z;
+					console.log("Generation: " + i + " New Supreme: " + supreme.size + " - " + supreme.tour)
+					this.map.writeFile(0, supreme.size, supreme.tour);
+					console.log("ww");
 				}
 			}
 			// will need to sort the array based on how good the population is.
@@ -326,6 +354,7 @@ class Genetic{
 			supreme.tour[i] += 1;
 		}
 		console.log("MASTER: " + supreme.size + " " + supreme.tour);
+		console.log("22");
 		this.map.writeFile(0, supreme.size, supreme.tour);
 	}
 	generateRandom(){
@@ -352,7 +381,6 @@ class Genetic{
 		return k;
 	}
 }
-
 class Annealing{
 	constructor(map){
 		this.map = map;
@@ -448,6 +476,9 @@ var map10 = new TourFile("cityfiles/AISearchfile535.txt");
 // var l = new Annealing(map1);
 // var k = new Genetic(map1);
 
-function puts(error, stdout, stderr) { sys.puts(stdout) }
+function puts(error, stdout, stderr) {
+	console.log(stdout);
+}
+console.log("Running Python Check");
 exec("python validtourcheck.py", puts);
-// console.log(fs.readFileSync("trace.txt", 'utf8'));
+console.log(fs.readFileSync("trace.txt", 'utf8'));
