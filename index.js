@@ -1,40 +1,67 @@
 "use strict";
 var fs = require('fs');
-var sys = require('util');
-var exec = require('child_process').exec;
 var brute = require('./brute.js');
+// var genetic = require('./genetic.js');
+var check = require('./check.js');
+var load = require('./loadfiles.js');
+var fileExists = require('file-exists');
 
 class TourFile{
 	constructor(location){
-		this.title = "";
-		this.location = location;
-		this.size = 0;
-		this.matrix = [];
+		this.tour = {
+			"title" 	: "",
+			"location"	: location,
+			"size"		: 0,
+			"matrix"	: [],
+			"BestA"		: 901239123091209390123,
+			"BestB"		: 901239123091209390123
+		}
 		this.readItem();
-		this.currentBestA = 901239123091209390123;
-		this.currentBestB = 901239123091209390123;
-		// this.loadResult();
-		console.log(this.currentBestA);
-		console.log(this.currentBestB);
-
-		// Runs Brute Force Algorithm
-		// brute.bruteforce(this);
-
+	}
+	saveMap(){
+		var string = JSON.stringify(this.tour);
+		var location = "maps/"+  this.tour.title + ".json";
+		fs.writeFile(location, string, function (err) {
+			//check for errors
+			if (err) return console.log(err);
+			//else continue.
+			console.log('writing to ' + location);
+		});
+	}
+	loadMap(mapname){
+		var callback = function (err, data) {
+			if (err) {
+				console.log("something bad happened in the callback");
+				return false;
+			}
+	        //sanitise data
+			console.log("Map was preconfigured :)");
+	        this.tour = JSON.parse(data);
+			this.initialise();
+			return true;
+	    };
+		if (fileExists("maps/"+  mapname + ".json")){
+			console.log("map has been found on a json file.");
+			return fs.readFile("maps/"+  mapname + ".json", "utf-8", callback);
+		} else {
+			return false;
+		}
+	}
+	initialise(){
+		// this.runGoods(this.myCallback);
+		var results = load.loadGoods('cmkv68', this.tour.title, this.tour.currentBestA, this.tour.currentBestB);
+		this.tour.currentBestA = results.bestA;
+		this.tour.currentBestB = results.bestB;
+		this.runChecks(this.review);
+		// // console.log(this.tour.currentBestA);
+		// // console.log(this.tour.currentBestB);
+		console.log(this.tour.matrix);
+		// console.log(this.tour.size);
 		var l = new Annealing(this);
-		var k = new Genetic(this);
+		// var k = new Genetic(this);
 
-	}
-	getMatrix(){
-		return this.matrix;
-	}
-	getSize(){
-		return this.size;
-	}
-	getLocation(){
-		return this.location;
-	}
-	getTitle(){
-		return this.title;
+		//runs the python checking file.
+		// check.runCheck();
 	}
 	initialiseSize(string_line){
 		var line = ""
@@ -49,88 +76,155 @@ class TourFile{
 		}
 		line = int(line);
 
-		this.size = line;
-		this.matrix = new Array(line).fill(-1);
+		this.tour.size = line;
+		this.tour.matrix = new Array(line).fill(-1);
 	}
+	// myCallback(err, data) {
+	//   if (err) throw err; // Check for the error and throw if it exists.
+	//   console.log('got data: '+data); // Otherwise proceed as usual.
+	// };
+	// runGoods(callback){
+	// 	callback(null, 'get it?');
+	// }
+	// // this.runGoods(this.myCallback);
+
+	review(err,data){
+		if (err) throw err; // Check for the error and throw if it exists.
+  	  	console.log('got data: '+data); // Otherwise proceed as usual.
+		this.tour.currentBestA = data.bestA;
+		this.tour.currentBestB = data.bestB;
+		console.log(data.bestA);
+		console.log(data.bestB);
+		// var l = new Annealing(this);
+		// var k = new Genetic(this);
+	}
+	runChecks(callback){
+		// run loadGoods and send it to callback.
+		this.review(null, load.loadGoods('cmkv68', this.tour.title, this.tour.currentBestA, this.tour.currentBestB));
+	}
+	// this.runChecks(this.review);
+
 	readItem(){
 		console.log("Reading File...");
-		var data = fs.readFileSync(this.location, 'utf8');
+		var contents = fs.readFileSync(this.tour.location, 'utf8');
 		// How you'd find a line break varies between operating system encodings. Windows would be \r\n but Linux just uses \n and Apple uses \r.
 		console.log("File read");
-		data = data.replace(/(\r\n|\n|\r)/gm,"");
+		//sanitise enters.
+		contents = contents.replace(/(\r\n|\n|\r)/gm,"");
+
 		// splits data by comma.
-		data = data.split(",");
+		contents = contents.split(",");
+
 		// extract name (first item in array)
-		// data.shift().split("l")[1].replace(/\s/g, '');
-		this.title = data.shift().split("=")[1].replace(/\s/g, '');
-		console.log("Map " + this.title + " is initialising");
+		this.tour.title = contents.shift().split("=")[1].replace(/\s/g, '');
+
+		//check if this title is in the maps folder.
+		console.log("finding " + this.tour.title);
+
+		var dir = "maps/" + this.tour.title + ".json";
+
+		fs.readFile(dir, 'utf8', (err, data) => {
+			if (err) {
+			   console.error('There was an error reading the file!', err);
+			   this.genFileGoods(contents);
+			}
+			console.log("map is loaded from a save");
+			console.log(data);
+			this.tour = JSON.parse(data);
+			this.initialise();
+		});
+
+
+		fs.open('myfile', 'r', (err, fd) => {
+		  if (err) {
+		    if (err.code === "ENOENT") {
+		      console.error('myfile does not exist');
+		    //   return;
+		    } else {
+		    //   throw err;
+		    }
+			this.genFileGoods(contents);
+		  }
+
+		  readMyData(fd);
+		});
+	}
+
+	genFileGoods(data){
+		data = data.toString("utf8", 0, data.length);
+		console.log("no map data recorded");
+		console.log("Map " + this.tour.title + " is initialising");
 		// extract size (first item in array)
-		this.size = data.shift().replace(/[^0-9\-]/g,'');
+		this.tour.size = data.shift().replace(/[^0-9\-]/g,'');
+
 		// sanitise tour data.
-		this.sanitiseTours(data);
-
-		// console.log(data);
-
-		// need to generate matrix.
-		this.generateMatrix();
+		for (var i = 0; i < data.length; i++){
+			data[i] = data[i].replace(/[^0-9\-]/g,'');
+		}
 
 		//fill matrix with goods.
-		console.log("Filling Matrix...");
-		this.fillMatrix(data);
-		console.log(this.size + " items are initialised in the matrix.");
+		this.generateMatrix(data);
+
+		//save the map into a JSON so you don't have to parse it again.
+		this.saveMap();
+
+		// run initialiser
+		this.initialise();
 	}
-	generateMatrix(){
-		for (var i = 0; i < this.size; i++){
-			this.matrix[i] = new Array(this.size);
+
+	generateMatrix(data){
+		console.log("Generating Matrix...");
+
+		for (var i = 0; i < this.tour.size; i++){
+			this.tour.matrix[i] = new Array(this.tour.size);
 		}
-		for (var i = 0; i < this.matrix.length; i++){
-			for (var j = 0; j < this.matrix.length; j++){
-				this.matrix[j][i] = -1;
+		for (var i = 0; i < this.tour.matrix.length; i++){
+			for (var j = 0; j < this.tour.matrix.length; j++){
+				this.tour.matrix[j][i] = -1;
 			}
 		}
-	}
-	fillMatrix(data){
+
+		console.log("Filling Matrix...");
 		var k = 0;
 		//plot data into matrix, runs in o(n) time.
-		for (var i = 0; i < this.matrix.length; i++){
-			for (var j = 0; j < this.matrix.length; j++){
-				if (this.matrix[j][i] == -1){
+		for (var i = 0; i < this.tour.matrix.length; i++){
+			for (var j = 0; j < this.tour.matrix.length; j++){
+				if (this.tour.matrix[j][i] == -1){
 					if (i == j){
 						// distance between a city to itself is 0.
-						this.matrix[j][i] = 0
+						this.tour.matrix[j][i] = 0
 					}
 					else {
 						// poll data from one location to another
-						this.matrix[j][i] = data.shift();
+						this.tour.matrix[j][i] = data.shift();
 						// transpose.
-						this.matrix[i][j] = this.matrix[j][i];
+						this.tour.matrix[i][j] = this.tour.matrix[j][i];
 					}
 				}
 			}
-			var v = (i/this.matrix.length * 100).toFixed(0);
+			var v = (i/this.tour.matrix.length * 100).toFixed(0);
 			if (v > k){
 				console.log("loading matrix: " + v + "%");
 			}
 			k = v;
 		}
+		console.log(this.tour.size + " items are initialised in the matrix.");
 	}
-	sanitiseTours(data){
-		for (var i = 0; i < data.length; i++){
-			data[i] = data[i].replace(/[^0-9\-]/g,'');
-		}
-	}
+	// sanitiseTours(data){
+	// 	for (var i = 0; i < data.length; i++){
+	// 		data[i] = data[i].replace(/[^0-9\-]/g,'');
+	// 	}
+	// }
 	crawl(list){
-		// console.log("running crawl");
 		var size = 0;
 		var start_city = list[0];
 		var current_pos = list[0];
-
 		for (var i = 0; i < list.length -1; i++){
 			var next_pos = list[i+1]
-			size += parseFloat(this.matrix[current_pos][next_pos]);
+			size += parseFloat(this.tour.matrix[current_pos,next_pos]);
 			current_pos = next_pos;
 		}
-		size += parseFloat(this.matrix[current_pos][start_city]);
+		size += parseFloat(this.tour.matrix[current_pos,start_city]);
 		return size;
 	}
 	shuffle(array){
@@ -147,15 +241,15 @@ class TourFile{
 		var check = 0;
 
 		if (bin == 0){
-			check = this.currentBestA;
+			check = this.tour.currentBestA;
 		}
 		else {
-			check = this.currentBestB;
+			check = this.tour.currentBestB;
 		}
 
 		if (check > toursize){
 			var loc = "cmkv68/TourFile";
-			var filename = "tour" + this.title;
+			var filename = "tour" + this.tour.title;
 			filename += ".txt";
 			console.log("Writing to file...");
 
@@ -167,8 +261,8 @@ class TourFile{
 			console.log("wahoey " + loc + filename);
 			var file = fs.createWriteStream(loc + filename);
 			file.on('error', function(err) { /* error handling */ });
-			file.write("NAME = " + this.title + ',\n');
-			file.write("TOURSIZE = " + this.size + ',\n');
+			file.write("NAME = " + this.tour.title + ',\n');
+			file.write("TOURSIZE = " + this.tour.size + ',\n');
 			file.write("LENGTH = " + toursize + ',\n');
 			file.write(tour.toString() + '\n');
 			file.end();
@@ -177,67 +271,17 @@ class TourFile{
 			console.log("toursize isn't better than best on file (currently " + check+")");
 		}
 	}
-	loadResult(bin){
-		console.log("----")
-		console.log("loading results")
-		var loc = "cmkv68/TourFile";
-
-		var filename = "tour" + this.title + ".txt";
-		console.log("Searching for file " + filename);
-
-		console.log("initialising A")
-		fs.access(loc + "A/" + filename, fs.F_OK, function(err) {
-		    if (!err) {
-
-		        var data = fs.readFileSync(loc + "A/" + filename, 'utf8');
-				// console.log("File Found;");
-				if (data){
-					data = data.replace(/(\r\n|\n|\r)/gm,"").split(",");
-					console.log(data);
-					this.currentBestA = data[2].split("=")[1].replace(/\s/g, '');
-					console.log("File Found; best length:", this.currentBestA);
-				} else {
-					console.log("file found but nothing inside");
-				}
-		    } else {
-		        console.log("File isn't found; continue.");
-		    }
-		});
-		console.log("initialising B")
-		fs.access(loc  + "B/" + filename, fs.F_OK, function(err) {
-		    if (!err) {
-		        var data = fs.readFileSync(loc  + "B/" + filename, 'utf8');
-				// console.log("File Found;");
-				if (data){
-					data = data.replace(/(\r\n|\n|\r)/gm,"").split(",");
-					console.log(data);
-					this.currentBestB = data[2].split("=")[1].replace(/\s/g, '');
-					console.log("File Found; best length:", this.currentBestB);
-				} else {
-					console.log("file found but nothing inside.");
-				}
-		    } else {
-		        console.log("File isn't found; continue.");
-		    }
-		});
-		console.log("----")
-	}
 }
-class Human{
-	constructor(t,s){
-		this.tour = t;
-		this.size = s;
-	}
-}
+
 class Genetic{
 	constructor(map){
 		console.log("running Genetic Algorithm");
 		this.map = map;
 		this.mutation_rate = 0.1;
 		// this.crossover_rate = 0.3;
-		this.population_size = 10000;
+		this.population_size = 10;
 		this.population = []; // randomly generated initial population
-		this.generations = 100000;
+		this.generations = 1000;
 		this.generatePopulation();
 		this.lapGenerations();
 	}
@@ -321,7 +365,7 @@ class Genetic{
 	lapGenerations(){
 		var supreme = new Human([],Number.MAX_VALUE);
 		for(var i = 0; i < this.generations; i++){
-			// console.log("Generation " + i);
+			console.log("Generation " + i);
 			var next_population = [];
 			var fittest_individual = new Human([],0);
 			for (var j in this.population){
@@ -460,7 +504,7 @@ class Annealing{
 		return k;
 	}
 }
-// var map1 = new TourFile("cityfiles/AISearchtestcase.txt");
+var map1 = new TourFile("cityfiles/AISearchtestcase.txt");
 // var map1 = new TourFile("cityfiles/AISearchfile012.txt");
 // var map2 = new TourFile("cityfiles/AISearchfile017.txt");
 // var map3 = new TourFile("cityfiles/AISearchfile021.txt");
@@ -470,15 +514,8 @@ class Annealing{
 // var map7 = new TourFile("cityfiles/AISearchfile058.txt");
 // var map8 = new TourFile("cityfiles/AISearchfile175.txt");
 // var map9 = new TourFile("cityfiles/AISearchfile180.txt");
-var map10 = new TourFile("cityfiles/AISearchfile535.txt");
+// var map10 = new TourFile("cityfiles/AISearchfile535.txt");
 // console.log(map1.matrix);
 // brute(map1);
 // var l = new Annealing(map1);
 // var k = new Genetic(map1);
-
-function puts(error, stdout, stderr) {
-	console.log(stdout);
-}
-console.log("Running Python Check");
-exec("python validtourcheck.py", puts);
-console.log(fs.readFileSync("trace.txt", 'utf8'));
