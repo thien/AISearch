@@ -55,7 +55,7 @@ class TourFile{
 	readItem(){
 		console.log("Reading File...");
 		var data = fs.readFileSync(this.location, 'utf8');
-		// How you'd find a line break varies between operating system encodings. Windows would be \r\n but Linux just uses \n and Apple uses \r.
+
 		console.log("File read");
 		data = data.replace(/(\r\n|\n|\r)/gm,"");
 		// splits data by comma.
@@ -223,12 +223,12 @@ class TourFile{
 		console.log("----")
 	}
 }
-class Human{
-	constructor(t,s){
-		this.tour = t;
-		this.size = s;
-	}
-}
+// class Human{
+// 	constructor(t,s){
+// 		this.tour = t;
+// 		this.size = s;
+// 	}
+// }
 class Genetic{
 	constructor(map){
 		console.log("running Genetic Algorithm");
@@ -247,8 +247,57 @@ class Genetic{
 	        return k.hasOwnProperty(i) ? false : (k[i] = true);
 	    });
 	}
+	lapGenerations(){
+		var supreme = {
+			"tour":[],
+			"size": Number.MAX_VALUE
+		}
+		for(var i = 0; i < this.generations; i++){
+			// console.log("Generation " + i);
+			var next_population = [];
+			var fittest_individual = {
+			"tour":[],
+			"size": 0
+		};
+			for (var j in this.population){
+				var rand1 = Math.ceil(Math.random() * this.population_size) - 1;
+				var rand2 = Math.ceil(Math.random() * this.population_size) - 1;
+
+				var x = this.population[rand1];
+				var y = this.population[rand2];
+
+				// make new human.
+				var z = this.crossover(x,y);
+
+				next_population.push(z);
+
+				// check for master human.
+				if (z.size < supreme.size){
+					supreme = z;
+					console.log("Generation: " + i + " New Supreme: " + supreme.size + " - " + supreme.tour)
+					this.map.writeFile(0, supreme.size, supreme.tour);
+					console.log("ww");
+				}
+			}
+			// will need to sort the array based on how good the population is.
+			next_population.sort();
+
+			this.population = next_population;
+		}
+
+		for (var i = 0; i < supreme.tour.length; i++){
+			supreme.tour[i] += 1;
+		}
+		console.log("MASTER: " + supreme.size + " " + supreme.tour);
+		console.log("22");
+		this.map.writeFile(0, supreme.size, supreme.tour);
+	}
 	crossover(x,y){
-		var out = new Human([],0)
+		var out = {
+			"tour":[],
+			"size": 0
+		}
+		// var out = new Human([],0)
 		var n = x.tour.length -1 ;
 		var half = Math.ceil(x.tour.length / 2);
 
@@ -306,7 +355,10 @@ class Genetic{
 		for (var i  = 0; i < this.population_size; i++){
 			var tour = this.generateRandom();
 			var length = this.map.crawl(tour);
-			var human = new Human(tour,length);
+			var human = {
+			"tour":tour,
+			"size": length
+		}
 			this.population.push(human);
 		}
 	}
@@ -318,45 +370,6 @@ class Genetic{
 			return (a.size < b.size) ? 1:1;
 		}
 	}
-	lapGenerations(){
-		var supreme = new Human([],Number.MAX_VALUE);
-		for(var i = 0; i < this.generations; i++){
-			// console.log("Generation " + i);
-			var next_population = [];
-			var fittest_individual = new Human([],0);
-			for (var j in this.population){
-				var rand1 = Math.ceil(Math.random() * this.population_size) - 1;
-				var rand2 = Math.ceil(Math.random() * this.population_size) - 1;
-
-				var x = this.population[rand1];
-				var y = this.population[rand2];
-
-				// make new human.
-				var z = this.crossover(x,y);
-
-				next_population.push(z);
-
-				// check for master human.
-				if (z.size < supreme.size){
-					supreme = z;
-					console.log("Generation: " + i + " New Supreme: " + supreme.size + " - " + supreme.tour)
-					this.map.writeFile(0, supreme.size, supreme.tour);
-					console.log("ww");
-				}
-			}
-			// will need to sort the array based on how good the population is.
-			next_population.sort();
-
-			this.population = next_population;
-		}
-
-		for (var i = 0; i < supreme.tour.length; i++){
-			supreme.tour[i] += 1;
-		}
-		console.log("MASTER: " + supreme.size + " " + supreme.tour);
-		console.log("22");
-		this.map.writeFile(0, supreme.size, supreme.tour);
-	}
 	generateRandom(){
 		var array = []
 		for (var i = 0; i < this.map.size; i++){
@@ -366,15 +379,15 @@ class Genetic{
 		return array;
 	}
 	mutate(k){
-		// console.log("lol");
+		// check mutation rate
 		if (Math.random() < this.mutation_rate){
-			// console.log(" - mutation detected");
+			// mutation detected
 			var size = k.length - 1;
 			// console.log(size);
-
 			var a = Math.round((Math.random() * size) -1)
 			var b = Math.round((Math.random() * size) -1)
 			var temp = k[b];
+			// swap variables around
 			k[b] = k[a];
 			k[b] = temp;
 		}
