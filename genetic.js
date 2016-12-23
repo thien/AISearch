@@ -36,7 +36,7 @@ module.exports.genetic = function(map, letter) {
 		// 	"tourlength": Number.MAX_VALUE,
 		// 	"tour": []
 		// }
-		var supreme = bf.loadPosition(letter, properties.map.title);
+		var supreme = bf.loadPosition(letter, properties.map);
 
 		console.log(supreme);
 		// iterate through the generations
@@ -82,7 +82,7 @@ module.exports.genetic = function(map, letter) {
 		for (var i = 0; i < supreme.tour.length; i++) {
 			supreme.tour[i] += 1;
 		}
-		console.log("MASTER: " + supreme.size + " " + supreme.tour);
+		console.log("MASTER: " + supreme.tourlength + " " + supreme.tour);
 		console.log("22");
 		bf.savePosition(supreme, letter);
 		// properties.map.writeFile(0, supreme.size, supreme.tour);
@@ -133,19 +133,47 @@ module.exports.genetic = function(map, letter) {
 	}
 
 	function mutate(k) {
-		// check mutation rate
-		if (Math.random() < properties.mutation_rate) {
-			// mutation detected
-			var size = k.length - 1;
-			// console.log(size);
-			var a = Math.round((Math.random() * size) - 1)
-			var b = Math.round((Math.random() * size) - 1)
-			var temp = k[b];
-			// swap variables around
-			k[b] = k[a];
-			k[b] = temp;
-		}
-		return k;
+		// console.log("mutation ensuring")
+		// console.log(k);
+		// console.log(k);
+		var size = k.length - 2;
+		// console.log(size);
+		var mutation = k.concat();
+		// console.log(size);
+
+		// swap with random positions
+		// var x = Math.round((Math.random() * size) - 1)
+		// var y = Math.round((Math.random() * size) - 1)
+
+		// swap with neighbouring positions
+		var x = Math.round((Math.random() * size));
+		var y = x+1;
+
+		// swap positions
+		var b = mutation[y];
+		mutation[y] = mutation[x];
+		mutation[x] = b;
+
+		// console.log(mutation);
+		// console.log("mutation done")
+		return mutation;
+		// console.log(k);
 	}
+
+	// function mutate(k) {
+	// 	// check mutation rate
+	// 	if (Math.random() < properties.mutation_rate) {
+	// 		// mutation detected
+	// 		var size = k.length - 1;
+	// 		// console.log(size);
+	// 		var a = Math.round((Math.random() * size) - 1)
+	// 		var b = Math.round((Math.random() * size) - 1)
+	// 		var temp = k[b];
+	// 		// swap variables around
+	// 		k[b] = k[a];
+	// 		k[b] = temp;
+	// 	}
+	// 	return k;
+	// }
 
 }

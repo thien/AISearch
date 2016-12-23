@@ -1,106 +1,78 @@
 var bf = require('./basefunctions.js');
 
-module.exports.annealing = function(map) {
 
-	// function anneal(map) {
+// --- PSEUDOCODE
+
+// current = initial state
+// for t = 1 to infinity:
+// 	t = schedule[t]
+// 	if t = 0
+// 		then return current
+// 	else
+// 		choose successos of current at random
+// 		delta e = f(successor) - f(current)
+// 		if delta e >= 0
+// 			then current = successor
+// 		else
+// 			current = successor with probability e^(delta e/t)
+
+module.exports.annealing = function(map, letter) {
+
 	var properties = {
 		"map": map,
-		"T": 10000,
-		"T_min": 0.00001,
-		"alpha": 0.9,
-		"rounds": 100
+		"T": 2000
 	}
+	var supreme = bf.loadPosition(letter, properties.map);
+	console.log(supreme);
 	console.log("initialising annealing.");
-	properties.bigboy = generateRandom();
-	properties.length = crawl(properties.bigboy, properties.map);
-	// console.log(properties.bigboy);
-	// console.log(properties.length);
-	console.log("running annealing");
-	while (T > T_min) {
-		for (var i = 0; i < rounds; i++) {
-			var random = generateRandom(properties.map.size);
-			var new_sol = mutate(random)
-				// console.log(new_sol.length)
-			var new_cost = crawl(new_sol)
-			var ap = acceptance_probability(properties.length, new_cost, T)
-			if (ap > Math.random()) {
-				properties.bigboy = new_sol;
-				properties.length = new_cost;
-				// console.log(properties.length);
+
+	var currentpath = {
+		"toursize": 0,
+		"tour": []
+	}
+	currentpath.tour = bf.generateRandom(properties.map.size);
+	currentpath.toursize = bf.crawl(currentpath.tour, properties.map);
+
+	var step = 0;
+	while (properties.T > 0){
+		step++;
+		// properties.T = 0;
+		// T decrements by 1/log of curent step number
+		properties.T = 1/Math.log(step)
+
+		var adjacentpath = {
+			"toursize": 0,
+			"tour": []
+		}
+
+		bf.mutate(currentpath.tour, "random", function(err, tour){
+			adjacentpath.tour = tour;
+			// console.log(adjacentpath.tour);
+			adjacentpath.toursize = bf.crawl(tour, properties.map);
+		});
+
+		if (currentpath.toursize > adjacentpath.toursize){
+			currentpath = adjacentpath
+			// console.log(properties.T + " - " + currentpath.toursize)
+		}
+		else {
+			var random = Math.random();
+			var probability = Math.exp((adjacentpath.toursize - currentpath.toursize)/properties.T)
+			// replace with probability e^(lo - l1 / T)
+			if (random > probability){
+				currentpath = adjacentpath
+				// console.log(properties.T + " - " + currentpath.toursize)
 			}
 		}
-		T = T * alpha
-	}
-	// console.log("Best toursize: " + properties.length + " - " + properties.bigboy);
-	for (var i = 0; i < properties.bigboy.length; i++) {
-		properties.bigboy[i] += 1;
-	}
-	// properties.map.writeFile(1, properties.length, properties.bigboy);
-	// console.log(properties.bigboy);
+		// console.log(currentpath.toursize)
 
-// -----------------------------
-
-	function acceptance_probability(old, ne, T) {
-		var a = 0;
-		if (ne < old) {
-			a = 1;
-		} else {
-			if (old / 2 > ne) {
-				a = 0.5;
-			}
-			if (old / 3 > ne) {
-				a = 0.3;
-			}
-			if (old / 4 > ne) {
-				a = 0;
-			}
+		// check for master human.
+		if (currentpath.toursize < supreme.tourlength) {
+			supreme.tour = currentpath.tour;
+			supreme.tourlength = currentpath.toursize;
+			console.log("New Supreme: " + supreme.tourlength + " - " + supreme.tour);
+			bf.savePosition(supreme,letter);
 		}
-		return a;
 	}
 
-	function mutate(k) {
-		var size = k.length - 1;
-		// console.log(size);
-		var a = Math.round((Math.random() * size) - 1)
-		var b = Math.round((Math.random() * size) - 1)
-		var temp = k[b];
-		k[b] = k[a];
-		k[b] = temp;
-		return k;
-	}
-
-	function crawl(list) {
-		// console.log("running crawl");
-		var size = 0;
-		var start_city = list[0];
-		var current_pos = list[0];
-
-		for (var i = 0; i < list.length - 1; i++) {
-			var next_pos = list[i + 1]
-			size += parseFloat(properties.map.matrix[current_pos][next_pos]);
-			current_pos = next_pos;
-		}
-		size += parseFloat(properties.map.matrix[current_pos][start_city]);
-		return size;
-	}
-
-	function shuffle(array) {
-		// Durstenfeld shuffle algorithm; shuffles arrays in place.
-		for (var i = array.length - 1; i > 0; i--) {
-			var j = Math.floor(Math.random() * (i + 1));
-			var temp = array[i];
-			array[i] = array[j];
-			array[j] = temp;
-		}
-		return array;
-	}
-
-	function generateRandom(size) {
-		var array = []
-		for (var i = 0; i < size; i++) {
-			array.push(i);
-		}
-		array = shuffle(array);
-		return array;
-	}
 }

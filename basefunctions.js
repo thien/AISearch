@@ -90,8 +90,8 @@ module.exports.savePosition = function(tourdata, letter){
 	console.log("File written to " + location);
 }
 
-module.exports.loadPosition = function(letter, filename){
-	var loc = "cmkv68/TourFile" + letter + "/tour" + filename +".json";
+module.exports.loadPosition = function(letter, map){
+	var loc = "cmkv68/TourFile" + letter + "/tour" + map.title +".json";
 	try {
 		fs.accessSync(loc);
 		// it exists
@@ -103,10 +103,42 @@ module.exports.loadPosition = function(letter, filename){
 		// doesn't exist.
 		console.log(loc + " doesn't exist")
 		return {
-			"title": filename,
-			"toursize": parseInt(filename.match(/[0-9]+/g)[0]),
+			"title": map.title,
+			"toursize": parseInt(map.size),
 			"tourlength": Number.MAX_VALUE,
 			"tour": []
 		}
 	}
 }
+
+module.exports.mutate = function(k, method, done) {
+		// console.log("mutating");
+		// console.log(k);
+		var size = k.length - 2;
+		var mutation = k.concat();
+
+		if (method == "random"){
+			// swap with random positions
+			var x = Math.round((Math.random() * size) + 1);
+			var y = x;
+			while (x == y){
+				y = Math.round((Math.random() * size) + 1);
+			}
+		}
+		if (method == "neighbouring"){
+			// swap with neighbouring positions
+			var x = Math.round((Math.random() * size));
+			var y = x+1;
+		}
+
+		// swap positions
+		var b = mutation[y];
+		mutation[y] = mutation[x];
+		mutation[x] = b;
+
+		// console.log(mutation);
+		// console.log("mutation done")
+		done(null, mutation);
+		// return mutation;
+		// console.log(k);
+	}
