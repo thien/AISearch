@@ -8,7 +8,8 @@ LoadTourFile("cityfiles/AISearchfile535.txt", function(err, map) {
 	// console.log(map);
 	console.log(map.title);
 	console.log(map.size);
-	genpmx.genetic(map, "B");
+	// genpmx.genetic(map, "B");
+	genetic.genetic(map, "B");
 	// anneal.annealing(map, "A");
 	// brute.bruteforce(map);
 });

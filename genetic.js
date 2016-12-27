@@ -84,7 +84,7 @@ module.exports.genetic = function(map, letter) {
 
 			properties.population = next_population;
 			var time_per_generation = (Math.abs(new Date() - timestart))/1000 + " seconds";
-			console.log("Generation " + i + " took " + time_per_generation)
+			console.log("BASE - (" + fittest_individual.size + ") G. " + i + " - " + time_per_generation)
 		}
 
 		for (var i = 0; i < supreme.tour.length; i++) {

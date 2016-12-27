@@ -20,7 +20,8 @@ module.exports.annealing = function(map, letter) {
 
 	var properties = {
 		"map": map,
-		"T": 2000
+		"T": 2000,
+		"mutationrate": 0.3
 	}
 	var supreme = bf.loadPosition(letter, properties.map);
 	console.log(supreme);
@@ -45,7 +46,7 @@ module.exports.annealing = function(map, letter) {
 			"tour": []
 		}
 
-		bf.mutate(currentpath.tour, "random", function(err, tour){
+		bf.mutate(currentpath.tour, properties.mutationrate, "random", function(err, tour){
 			adjacentpath.tour = tour;
 			// console.log(adjacentpath.tour);
 			adjacentpath.toursize = bf.crawl(tour, properties.map);

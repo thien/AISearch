@@ -102,36 +102,35 @@ module.exports.loadPosition = function(letter, map){
 	}
 }
 
-module.exports.mutate = function(k, method, done) {
+module.exports.mutate = function(k, rate, method, done) {
 	// console.log("mutating");
 	// console.log(k);
-	var size = k.length - 2;
-	var mutation = k.concat();
+	if (Math.random() > rate){
+		var size = k.length - 2;
+		var mutation = k.concat();
 
-	if (method == "random"){
-		// swap with random positions
-		var x = Math.round((Math.random() * size) + 1);
-		var y = x;
-		while (x == y){
-			y = Math.round((Math.random() * size) + 1);
+		if (method == "random"){
+			// swap with random positions
+			var x = Math.round((Math.random() * size) + 1);
+			var y = x;
+			while (x == y){
+				y = Math.round((Math.random() * size) + 1);
+			}
 		}
-	}
-	if (method == "neighbouring"){
-		// swap with neighbouring positions
-		var x = Math.round((Math.random() * size));
-		var y = x+1;
-	}
+		if (method == "neighbouring"){
+			// swap with neighbouring positions
+			var x = Math.round((Math.random() * size));
+			var y = x+1;
+		}
 
-	// swap positions
-	var b = mutation[y];
-	mutation[y] = mutation[x];
-	mutation[x] = b;
-
-	// console.log(mutation);
-	// console.log("mutation done")
-	done(null, mutation);
-	// return mutation;
-	// console.log(k);
+		// swap positions
+		var b = mutation[y];
+		mutation[y] = mutation[x];
+		mutation[x] = b;
+		done(null, mutation);
+	}else{
+		done(null, k);
+	}
 }
 
 
