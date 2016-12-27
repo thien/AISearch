@@ -4,23 +4,26 @@ var anneal = require('./annealing.js');
 var brute = require('./brute.js');
 var genpmx = require('./test/genetic-pmx.js');
 
+// LoadTourFile("cityfiles/AISearchfile017.txt", function(err, map) {
+// 	// console.log(map);
+// 	console.log(map.title);
+// 	console.log(map.size);
+// 	// genpmx.genetic(map, "B");
+// 	// genetic.genetic(map, "B");
+// 	anneal.annealing(map, "A");
+// 	// brute.bruteforce(map);
+// });
+
 LoadTourFile("cityfiles/AISearchfile535.txt", function(err, map) {
 	// console.log(map);
 	console.log(map.title);
 	console.log(map.size);
+	// genetic.genetic(map, "B");
 	// genpmx.genetic(map, "B");
-	genetic.genetic(map, "B");
-	// anneal.annealing(map, "A");
-	// brute.bruteforce(map);
+	anneal.annealing(map, "A");
 });
 
-// LoadTourFile("cityfiles/AISearchfile535.txt", function(err, map) {
-// 	// console.log(map);
-// 	console.log(map.title);
-// 	console.log(map.size);
-// 	// genetic.genetic(map, "B");
-// 	anneal.annealing(map, "A");
-// });
+// cd /Volumes/Soodibus/Github/AISearch/ && node new_index.js
 
 function LoadTourFile(filename, done) {
 	var map = {

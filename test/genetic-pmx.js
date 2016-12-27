@@ -6,7 +6,7 @@ module.exports.genetic = function(map, letter) {
 	var savelocation = letter;
 	var properties = {
 		"map": map,
-		"mutation_rate": 0.3,
+		"mutation_rate": 0,
 		"population_size": 10000,
 		"population": [], // randomly generated initial population
 		"generations": 100000
