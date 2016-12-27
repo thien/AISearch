@@ -2,12 +2,13 @@ var fs = require('fs');
 var genetic = require('./genetic.js');
 var anneal = require('./annealing.js');
 var brute = require('./brute.js');
+var genpmx = require('./test/genetic-pmx.js');
 
-LoadTourFile("cityfiles/AISearchfile017.txt", function(err, map) {
+LoadTourFile("cityfiles/AISearchfile535.txt", function(err, map) {
 	// console.log(map);
 	console.log(map.title);
 	console.log(map.size);
-	genetic.genetic(map, "B");
+	genpmx.genetic(map, "B");
 	// anneal.annealing(map, "A");
 	// brute.bruteforce(map);
 });

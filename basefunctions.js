@@ -61,15 +61,6 @@ module.exports.checkmissing = function(x, map) {
 		// console.log(x);
 		return x;
 	}
-
-module.exports.sortByPedigree = function(a,b){
-	if (a.size === b.size) {
-			return 0;
-		} else {
-			return (a.size < b.size) ? 1 : 1;
-		}
-}
-
 module.exports.savePosition = function(tourdata, letter){
 	var output = "";
 	var loc = "cmkv68/TourFile" + letter + "/";
@@ -112,33 +103,42 @@ module.exports.loadPosition = function(letter, map){
 }
 
 module.exports.mutate = function(k, method, done) {
-		// console.log("mutating");
-		// console.log(k);
-		var size = k.length - 2;
-		var mutation = k.concat();
+	// console.log("mutating");
+	// console.log(k);
+	var size = k.length - 2;
+	var mutation = k.concat();
 
-		if (method == "random"){
-			// swap with random positions
-			var x = Math.round((Math.random() * size) + 1);
-			var y = x;
-			while (x == y){
-				y = Math.round((Math.random() * size) + 1);
-			}
+	if (method == "random"){
+		// swap with random positions
+		var x = Math.round((Math.random() * size) + 1);
+		var y = x;
+		while (x == y){
+			y = Math.round((Math.random() * size) + 1);
 		}
-		if (method == "neighbouring"){
-			// swap with neighbouring positions
-			var x = Math.round((Math.random() * size));
-			var y = x+1;
-		}
-
-		// swap positions
-		var b = mutation[y];
-		mutation[y] = mutation[x];
-		mutation[x] = b;
-
-		// console.log(mutation);
-		// console.log("mutation done")
-		done(null, mutation);
-		// return mutation;
-		// console.log(k);
 	}
+	if (method == "neighbouring"){
+		// swap with neighbouring positions
+		var x = Math.round((Math.random() * size));
+		var y = x+1;
+	}
+
+	// swap positions
+	var b = mutation[y];
+	mutation[y] = mutation[x];
+	mutation[x] = b;
+
+	// console.log(mutation);
+	// console.log("mutation done")
+	done(null, mutation);
+	// return mutation;
+	// console.log(k);
+}
+
+
+module.exports.sortByPedigree = function(array){
+	// http://stackoverflow.com/questions/8175093/simple-function-to-sort-an-array-of-objects
+	return array.sort(function(a, b) {
+        var x = a.size; var y = b.size;
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
+}
