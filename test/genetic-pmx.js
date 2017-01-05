@@ -55,11 +55,11 @@ module.exports.genetic = function(map, letter) {
 					generateOffspring(x, y, function(a, b) {
 						// go through mutation roulette
 						var z;
-						bf.mutate(a.tour, properties.mutation_rate, "random", function(err, tour) {
+						bf.mutate(a.tour, properties.mutation_rate, "neighbouring", function(err, tour) {
 							a.tour = tour;
 							a.size = bf.crawl(a.tour, properties.map);
 						});
-						bf.mutate(b.tour, properties.mutation_rate, "random", function(err, tour) {
+						bf.mutate(b.tour, properties.mutation_rate, "neighbouring", function(err, tour) {
 							b.tour = tour;
 							b.size = bf.crawl(b.tour, properties.map);
 						});
@@ -137,74 +137,5 @@ module.exports.genetic = function(map, letter) {
 			done(child1, child2);
 		});
 		// done(child1, child2);
-	}
-
-	function crossover(x, y) {
-		var out = {
-				"tour": [],
-				"size": 0
-			}
-			// var out = new Human([],0)
-		var n = x.tour.length - 1;
-		var half = Math.ceil(x.tour.length / 2);
-
-		//onecheck
-		var a = [...x.tour.slice(0, half)];
-		var b = [...y.tour.slice(half, n)];
-		a.push.apply(a, b);
-		// console.log("a: " + a);
-		a = bf.removeDuplicates(a);
-		a = bf.checkmissing(a, properties.map);
-		a = mutate(a);
-		// console.log("a: " + a);
-		var arange = bf.crawl(a, properties.map);
-
-		//twocheck
-		var c = [...y.tour.slice(0, half)];
-		var d = [...x.tour.slice(half, n)];
-		c.push.apply(c, d);
-		// console.log("len" + c.length+d.length)
-		// console.log("c: "+c);
-		c = bf.removeDuplicates(c);
-		c = bf.checkmissing(c, properties.map);
-		c = mutate(c);
-		// console.log("c: " + c);
-		var crange = bf.crawl(c, properties.map);
-
-		if (arange > crange) {
-			// console.log("lol")
-			out.tour = Array.from(c);
-			out.size = crange;
-		} else {
-			// console.log("win")
-			out.tour = Array.from(a);
-			out.size = arange;
-		}
-		return out;
-	}
-
-	function mutate(k, rate) {
-		// check if mutation is greater
-		if (Math.random() > rate) {
-			var size = k.length - 2;
-			var mutation = k.concat();
-			// swap with random positions
-			// var x = Math.round((Math.random() * size) - 1)
-			// var y = Math.round((Math.random() * size) - 1)
-
-			// swap with neighbouring positions
-			var x = Math.round((Math.random() * size));
-			var y = x + 1;
-
-			// swap positions
-			var b = mutation[y];
-			mutation[y] = mutation[x];
-			mutation[x] = b;
-
-			// console.log(mutation);
-			// console.log("mutation done")
-		}
-		return k;
-		// console.log(k);
 	}
 }

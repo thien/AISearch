@@ -150,8 +150,8 @@ module.exports.genetic = function(map, letter) {
 		// console.log(size);
 
 		// swap with random positions
-		// var x = Math.round((Math.random() * size) - 1)
-		// var y = Math.round((Math.random() * size) - 1)
+		// var x = Math.round((Math.random() * size) + 1)
+		// var y = Math.round((Math.random() * size) + 1)
 
 		// swap with neighbouring positions
 		var x = Math.round((Math.random() * size));
@@ -167,22 +167,4 @@ module.exports.genetic = function(map, letter) {
 		return mutation;
 		// console.log(k);
 	}
-
-	// function mutate(k) {
-	// 	// check mutation rate
-	// 	if (Math.random() < properties.mutation_rate) {
-	// 		// mutation detected
-	// 		var size = k.length - 1;
-	// 		// console.log(size);
-	// 		var a = Math.round((Math.random() * size) - 1)
-	// 		var b = Math.round((Math.random() * size) - 1)
-	// 		var temp = k[b];
-	// 		// swap variables around
-	// 		k[b] = k[a];
-	// 		k[b] = temp;
-	// 	}
-	// 	return k;
-	// }
-
 }
-0

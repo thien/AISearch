@@ -19,8 +19,8 @@ LoadTourFile("cityfiles/AISearchfile535.txt", function(err, map) {
 	console.log(map.title);
 	console.log(map.size);
 	// genetic.genetic(map, "B");
-	// genpmx.genetic(map, "B");
-	anneal.annealing(map, "A");
+	genpmx.genetic(map, "B");
+	// anneal.annealing(map, "A");
 });
 
 // cd /Volumes/Soodibus/Github/AISearch/ && node new_index.js
