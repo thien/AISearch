@@ -21,7 +21,7 @@ module.exports.annealing = function(map, letter) {
 	var properties = {
 		"map": map,
 		"T": 2000,
-		"mutationrate": 0.3
+		"mutationrate": 0
 	}
 	// initiate a supreme from a local file (saved prior)
 	// if a file isn't loaded, it initiates a toursize thats infinitely large so it can be replaced.
@@ -40,7 +40,7 @@ module.exports.annealing = function(map, letter) {
 	// step counter
 	var step = 0;
 
-	while (properties.T > 0){
+	while (properties.T > 0 && step < 1000000000){
 		// increment number of steps
 		step++;
 
@@ -54,9 +54,16 @@ module.exports.annealing = function(map, letter) {
 
 		// generate a mutated path.
 		bf.mutate(currentpath.tour, properties.mutationrate, "random", function(err, tour){
+			// bf.mutate(tour, properties.mutationrate, "random", function(err, tour2){
 			adjacentpath.tour = tour;
 			adjacentpath.toursize = bf.crawl(tour, properties.map);
+		// })
 		});
+
+		// bf.mutate_ps(currentpath.tour,properties.mutation_rate,function(err,tour){
+  //       	adjacentpath.tour = tour;
+		// 	adjacentpath.toursize = bf.crawl(tour, properties.map);
+  //       });
 
 		// check if the generated path is better than what we have
 		if (currentpath.toursize > adjacentpath.toursize){

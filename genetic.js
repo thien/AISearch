@@ -1,12 +1,13 @@
 var bf = require('./basefunctions.js');
+var bfs = require('./bfs.js');
 
 // genetic algorithm
 module.exports.genetic = function(map, letter) {
 	var savelocation = letter;
 	var properties = {
 		"map": map,
-		"mutation_rate": 0.3,
-		"population_size": 10000,
+		"mutation_rate": 0.2,
+		"population_size": 1000,
 		"population": [], // randomly generated initial population
 		"generations": 100000
 	}
@@ -18,7 +19,8 @@ module.exports.genetic = function(map, letter) {
 	function generatePopulation(properties) {
 		// generates the population
 		for (var i = 0; i < properties.population_size; i++) {
-			var tour = bf.generateRandom(properties.map.size);
+			// var tour = bf.generateRandom(properties.map.size);
+			var tour = bfs.bfs(map.size, map.matrix, Math.round(Math.random() * map.size - 1)+1);
 			var length = bf.crawl(tour, properties.map);
 			var crawler = {
 				"tour": tour,
@@ -72,7 +74,7 @@ module.exports.genetic = function(map, letter) {
 					supreme.tour = z.tour;
 					supreme.tourlength = z.size;
 					console.log("Generation: " + i + " New Supreme: " + supreme.tourlength + " - " + supreme.tour);
-					bf.savePosition(supreme,letter);
+					bf.savePosition(supreme, letter);
 					// properties.map.writeFile(0, supreme.size, supreme.tour);
 					// console.log("ww");
 				} else {
@@ -83,7 +85,7 @@ module.exports.genetic = function(map, letter) {
 			next_population.sort();
 
 			properties.population = next_population;
-			var time_per_generation = (Math.abs(new Date() - timestart))/1000 + " seconds";
+			var time_per_generation = (Math.abs(new Date() - timestart)) / 1000 + " seconds";
 			console.log("BASE - (" + fittest_individual.size + ") G. " + i + " - " + time_per_generation)
 		}
 
@@ -112,7 +114,14 @@ module.exports.genetic = function(map, letter) {
 		// console.log("a: " + a);
 		a = bf.removeDuplicates(a);
 		a = bf.checkmissing(a, properties.map);
+
+
+        // bf.mutate_ps(a,properties.mutation_rate,function(err,tour){
+        // 	a = tour;
+        // });
 		a = mutate(a);
+
+
 		// console.log("a: " + a);
 		var arange = bf.crawl(a, properties.map);
 
@@ -124,7 +133,14 @@ module.exports.genetic = function(map, letter) {
 		// console.log("c: "+c);
 		c = bf.removeDuplicates(c);
 		c = bf.checkmissing(c, properties.map);
+
+
+		// bf.mutate_ps(c,properties.mutation_rate,function(err,tour){
+  //       	c = tour;
+  //       });
 		c = mutate(c);
+
+
 		// console.log("c: " + c);
 		var crange = bf.crawl(c, properties.map);
 
@@ -155,7 +171,7 @@ module.exports.genetic = function(map, letter) {
 
 		// swap with neighbouring positions
 		var x = Math.round((Math.random() * size));
-		var y = x+1;
+		var y = x + 1;
 
 		// swap positions
 		var b = mutation[y];

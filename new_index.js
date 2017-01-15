@@ -3,23 +3,25 @@ var genetic = require('./genetic.js');
 var anneal = require('./annealing.js');
 var brute = require('./brute.js');
 var genpmx = require('./test/genetic-pmx.js');
+var bfs = require('./bfs.js');
 
+
+// LoadTourFile("cityfiles/AISearchfile012.txt", function(err, map) {
 // LoadTourFile("cityfiles/AISearchfile017.txt", function(err, map) {
-// 	// console.log(map);
-// 	console.log(map.title);
-// 	console.log(map.size);
-// 	// genpmx.genetic(map, "B");
-// 	// genetic.genetic(map, "B");
-// 	anneal.annealing(map, "A");
-// 	// brute.bruteforce(map);
-// });
-
-LoadTourFile("cityfiles/AISearchfile535.txt", function(err, map) {
+// LoadTourFile("cityfiles/AISearchfile021.txt", function(err, map) {
+// LoadTourFile("cityfiles/AISearchfile026.txt", function(err, map) {
+// LoadTourFile("cityfiles/AISearchfile042.txt", function(err, map) {
+// LoadTourFile("cityfiles/AISearchfile048.txt", function(err, map) {
+// LoadTourFile("cityfiles/AISearchfile058.txt", function(err, map) {
+LoadTourFile("cityfiles/AISearchfile175.txt", function(err, map) {
+// LoadTourFile("cityfiles/AISearchfile180.txt", function(err, map) {
+// LoadTourFile("cityfiles/AISearchfile535.txt", function(err, map) {
 	// console.log(map);
 	console.log(map.title);
 	console.log(map.size);
-	// genetic.genetic(map, "B");
-	genpmx.genetic(map, "B");
+	genetic.genetic(map, "B");
+	// bfs.bfs(map.size, map.matrix, Math.round(Math.random() * map.size));
+	// genpmx.genetic(map, "B");
 	// anneal.annealing(map, "A");
 });
 
@@ -143,12 +145,5 @@ function LoadTourFile(filename, done) {
 		// const filelocation = 'data/' + map.title + '.json';
 
 		fs.writeFileSync(map.filelocation, JSON.stringify(map));
-	 //    console.log("debug");
-	 //    process.exit();   // Don't think you'll need this line any more
-		// fs.writeFile(map.filelocation, JSON.stringify(map), function(err) {
-		// 	if (err) return console.log(err);
-		// 	console.log("Map saved to " + map.filelocation);
-		// 	process.exit();
-		// });
 		done(null, map);
 	}}
