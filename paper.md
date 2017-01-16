@@ -1,3 +1,6 @@
+AI Search
+===================
+
 ## Map Parser
 
 The interpreter reads the dirty data files from `/cityfiles/*` and sanitizes it appropriately in order to generate metadata about the file. A matrix is generated allowing the data to be read in the tour to be read using a path representation, where city _i_ is the _j-th_ element of the list. The tour 3-2-4-1-5-7-8-6 can be represented by:
@@ -12,20 +15,22 @@ This is then fed to the two methods used: A - Simulated Annealing and B - Geneti
 
 ### Path Generation
 
+Path generation 
+
 ### Mutation
 
 
-## A - Simulated Annealing
+## A - Simulated Annealing
 
-The approach to simulated annealing is relatively simple. It models the process undergone by misplaced atoms in an object when heated; and slowly cooled down, attempting to find a global minimum of the tours. While this method will unlikely find the optimum solution, it can often find a very good solution.
+The simulated annealing method is a more deterministic model of the hill climbing algorithm. The introduction of randomness allows the method to escape local maximums, allowing it to have a better chance of finding a global maximum.
 
-It works by 
-- 
-- looping 1,000,000 steps or reaches zero
-- generating a random path to tour to
-- determining whether the path should be taken
-	- if the path is better then take it
-	- if the path isn't take it with a probability.
+The approach to simulated annealing is relatively simple. It models the process undergone by misplaced atoms in an object when heated; and slowly cooled down, attempting to find a global minimum of the tours. While this method will unlikely find the optimum solution, it can often find a very good solution. A structured English algorithm is described below:
+
+	- looping 1,000,000 steps or reaches zero
+	- generating a random path to tour to
+	- determining whether the path should be taken
+		- if the path is better then take it
+		- if the path isn't take it based on a probability.
 
 - Probablistic Methods
 multiple decisions have been chosen as there are two aspects of the annealing model that can be subject to probability:
@@ -35,37 +40,50 @@ multiple decisions have been chosen as there are two aspects of the annealing mo
 
 ## Generation of Adjacent Path
 
-A new path will be generated, whether two positions are randomly switched around, or 
-I have sampled multiple methods
+The mutation methods are chosen due to its simplicity.
 
 ### Neighbouring Mutation
 
-A neighbouring mutation has the most 
-
+A neighbouring mutation is produced by finding a random position `N` within the path and switching its position with the city `N+1`. For example, if city `2` was chosen in the tour `1,2,3,4,5,6,7,8`, then the mutation would return `1,3,2,4,5,6,7,8`. If the city chosen is the last city in the list, then it would be replaced with the first city in the list.
 
 
 ### Random Mutation
 
-I have chosen the random mutation as it is 
+Random mutation is produced by finding two random positions in the path and switching their positions with each other; for example in the tour `1,2,3,4,5,6,7,8`, a Random Number Generator is used to get the cities `2`, and `6`. These two cities are swapped leading to the tour path `1,6,3,4,5,2,7,8`. 
 
-2x mutation:
-78319
 
-1x mutation:
-72702
+### Testing of Mutation Methods
 
-## Probability of Path Switching
+Below I conducted a test between the two mutation methods, in order to decide on the best option for the Annealing method. The mutation methods will be used against three tours, `AISearchfile042`, `AISearchfile175` and `AISearchfile535`. The test will use the same path switching method, and the results would be the average of 5 runs of the annealing method, in order to reduce the significance that entropy applies to the mutation methods.
+
+The multiplier column represents how many laps of mutation the tour has gone through, where a multiplier of 2 means that the tour has undergone two mutations. The tour column represents the search-file the annealing algorithm is implemented on. 
+
+| Tour Method  | Multiplier | Tour | Result (Tour Length) |
+|--------------|------------|------|----------------------|
+| Random       | 1          | 535  | 72702 		  		  |
+| Random       | 2          | 535  | 78319 		  		  |
+| Neighbouring | 1          | 535  | 92412 		  		  |
+| Neighbouring | 2          | 535  | 95120 		  		  |
+
+The case for more mutations detrimentally affecting the performance of the mutation may be related to the fact that the tour would deviate further from its tour direction.
+The more dramatic the entropy, the 
+
+Issues that the results may face is generally based on the fact that the annealing algorithm is a deterministic method, leading to the contribution of randomness still having a large impact of the results, regardless of efforts to mitigate its factor in the results.
+
+Overall, it has shown that the Random mutation method with a 1x multiplier has performed the best. This method will be included with the final annealing approach.
+
+## Path Switching
 
 Our cost functions will be the length of the generated tours.
 
-Possibly the most important aspect of the annealing method, we may sometimes have to accept the worse tour as it may be the stepping stone that could get close to the global minima as opposed to staying in the local minima. I have chosen the three methods as below as my probability function.
+Possibly the most defining aspect of the annealing method, we may sometimes have to accept the worse tour as it may be the stepping stone that could get close to the global minima as opposed to staying in the local minima. I have chosen the three methods as below as my probability function.
 
+	1. e^(lo - l1 / T)
+	2. e^(-lo / T)
 
-- e^(lo - l1 / T)
-- e^(-lo / T)
+These formulas all decrease proportional to the number of steps incremented already. They grow in an exponential fashion, in order to simulate the temperature of a object cooling. The cooler the object, the less likely we will take the neighbouring tour.
 
-These formulas all decrease proportional to the number of steps incremented already. They grow in an expoential fashion, in order to simulate the temperature of a object cooling. The cooler the object, the less likely we will take the neighbouring tour.
-
+---------------------------------------------------------------------------
 
 ## B - Genetic Algorithm
 
@@ -75,18 +93,28 @@ Our genetic algorithm works as follows:
 - Children are created from the population using a crossover method
 - The child face a mutation based on probability
 - with N amount of children generated, this will be the new population
-- The best child in the population will be the most favourite tour;
+- The best child in the population will be the most favorite tour;
 - repeat for as many generations as liked.
 
 ### Generation of Population
 
-At the first generation, each member of the population is generated randomly; such that each member has a random sort of a numbers which represent the tours. A tourlength is generated based on tour.
+At the first generation, each member of the population is generated randomly; such that each member has a random sort of a numbers which represent the tours. A tour-length is generated based on tour. Issues related to this may include:
+
+- Population will have incredibly contrasting results; with a good chance of a generated path being poor, tour-size wise.
+- 
+
+Another method I have considered is to generate each member of the population by a basic greedy closest neighboring algorithm. This would allow us to ensure that the starting population will start with a relatively good results. There may be several issues related to this:
+
+- More computationally expensive to produce
+
 
 ### Crossover Method
 
 #### Vanilla Method
 
 #### PMX Method
+
+ partially mapped crossover, goldberg & lingle (1985)
 
 #### Split Method
 
