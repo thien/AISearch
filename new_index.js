@@ -10,8 +10,8 @@ var bfs = require('./bfs.js');
 
 
 // LoadTourFile("cityfiles/AISearchfile012.txt", function(err, map) {
-// LoadTourFile("cityfiles/AISearchfile017.txt", function(err, map) {
-LoadTourFile("cityfiles/AISearchfile021.txt", function(err, map) {
+LoadTourFile("cityfiles/AISearchfile017.txt", function(err, map) {
+// LoadTourFile("cityfiles/AISearchfile021.txt", function(err, map) {
 // LoadTourFile("cityfiles/AISearchfile026.txt", function(err, map) {
 // LoadTourFile("cityfiles/AISearchfile042.txt", function(err, map) {
 // LoadTourFile("cityfiles/AISearchfile048.txt", function(err, map) {
