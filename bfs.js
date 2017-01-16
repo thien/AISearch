@@ -1,6 +1,6 @@
 var bf = require('./basefunctions.js');
 module.exports.bfs = function(size, matrix, start_city) {
-	console.log("-------------------------------------------------------------------")
+	// console.log("-------------------------------------------------------------------")
 	var current_city = start_city
 	var travelled_cities = []
 	travelled_cities.push(current_city);
@@ -8,7 +8,7 @@ module.exports.bfs = function(size, matrix, start_city) {
 	// loop for all cities
 	while (travelled_cities.length < matrix.length +1 ){
 		// console.log(travelled_cities.slice(0).sort())cx   
-		console.log("current city:", current_city, " - toursize", travelled_cities.length)
+		// console.log("current city:", current_city, " - toursize", travelled_cities.length)
 		closestNeighbour(current_city, travelled_cities, matrix, function(city){
 			current_city = city;
 			travelled_cities.push(current_city);

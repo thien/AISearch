@@ -159,7 +159,6 @@ module.exports.mutate_ps = function(k,prob,done){
 
 }
 
-
 module.exports.sortByPedigree = function(array) {
     // http://stackoverflow.com/questions/8175093/simple-function-to-sort-an-array-of-objects
     return array.sort(function(a, b) {
@@ -167,4 +166,32 @@ module.exports.sortByPedigree = function(array) {
         var y = b.size;
         return ((x < y) ? -1 : ((x > y) ? 1 : 0));
     });
+}
+
+module.exports.convertResultTxt = function(file){
+	if (file.includes(".json")){
+		try {
+	        fs.accessSync(file);
+	        // it exists
+	        // check if it's better than what we have
+	        console.log(file + " exists");
+	        // console.log("contents of loc: " + loc);
+	        var data = JSON.parse(fs.readFileSync(file, 'utf8'));
+	        // console.log(JSON.stringify(data));
+	        var file_location = file.replace(".json", ".txt");
+	        var text_document = "";
+	        text_document += "NAME = " + data.title + ",\n";
+	        text_document += "TOURSIZE = " + data.toursize + ",\n";
+	        text_document += "LENGTH = " + data.tourlength + ",\n";
+	        for (var i in data.tour){
+	        	data.tour[i] += 1;
+	        }
+	        text_document += data.tour.toString()
+	        fs.writeFileSync(file_location, text_document);
+	    } catch (e) {
+	        // doesn't exist.
+	        console.log(e);
+	        console.log(file + " isn't a .json file.")
+	    }	
+	}
 }

@@ -21,7 +21,8 @@ module.exports.annealing = function(map, letter) {
 	var properties = {
 		"map": map,
 		"T": 2000,
-		"mutationrate": 0
+		"mutationrate": 0,
+		"alpha": 900
 	}
 	// initiate a supreme from a local file (saved prior)
 	// if a file isn't loaded, it initiates a toursize thats infinitely large so it can be replaced.
@@ -46,6 +47,7 @@ module.exports.annealing = function(map, letter) {
 
 		// T decrements by 1/log of curent step number
 		properties.T = 1/Math.log(step)
+		// properties.T = properties.alpha * properties.T
 
 		var adjacentpath = {
 			"toursize": 0,
@@ -89,5 +91,4 @@ module.exports.annealing = function(map, letter) {
 			bf.savePosition(supreme,letter);
 		}
 	}
-
 }

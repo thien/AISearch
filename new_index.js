@@ -1,4 +1,7 @@
 var fs = require('fs');
+var bf = require('./basefunctions.js');
+var exec = require('child_process').exec;
+var sys = require('util');
 var genetic = require('./genetic.js');
 var anneal = require('./annealing.js');
 var brute = require('./brute.js');
@@ -8,21 +11,23 @@ var bfs = require('./bfs.js');
 
 // LoadTourFile("cityfiles/AISearchfile012.txt", function(err, map) {
 // LoadTourFile("cityfiles/AISearchfile017.txt", function(err, map) {
-// LoadTourFile("cityfiles/AISearchfile021.txt", function(err, map) {
+LoadTourFile("cityfiles/AISearchfile021.txt", function(err, map) {
 // LoadTourFile("cityfiles/AISearchfile026.txt", function(err, map) {
 // LoadTourFile("cityfiles/AISearchfile042.txt", function(err, map) {
 // LoadTourFile("cityfiles/AISearchfile048.txt", function(err, map) {
 // LoadTourFile("cityfiles/AISearchfile058.txt", function(err, map) {
-LoadTourFile("cityfiles/AISearchfile175.txt", function(err, map) {
+// LoadTourFile("cityfiles/AISearchfile175.txt", function(err, map) {
 // LoadTourFile("cityfiles/AISearchfile180.txt", function(err, map) {
 // LoadTourFile("cityfiles/AISearchfile535.txt", function(err, map) {
 	// console.log(map);
-	console.log(map.title);
-	console.log(map.size);
+	// console.log(map.title);
+	// console.log(map.size);
 	genetic.genetic(map, "B");
 	// bfs.bfs(map.size, map.matrix, Math.round(Math.random() * map.size));
 	// genpmx.genetic(map, "B");
 	// anneal.annealing(map, "A");
+	// ConvertResultsIntoTxt();
+	// checkResults();
 });
 
 // cd /Volumes/Soodibus/Github/AISearch/ && node new_index.js
@@ -146,4 +151,29 @@ function LoadTourFile(filename, done) {
 
 		fs.writeFileSync(map.filelocation, JSON.stringify(map));
 		done(null, map);
-	}}
+	}
+}
+function ConvertResultsIntoTxt(){
+	var testFolderA = './cmkv68/TourFileA/';
+	var testFolderB = './cmkv68/TourFileB/';
+
+	fs.readdir(testFolderA, (err, files) => {
+	  files.forEach(file => {
+	    // console.log(file);
+	    bf.convertResultTxt(testFolderA + file);
+	  });
+	})
+	fs.readdir(testFolderB, (err, files) => {
+	  files.forEach(file => {
+	    bf.convertResultTxt(testFolderB + file);
+	  });
+	})
+}
+function checkResults(){
+	function puts(error, stdout, stderr) {
+		console.log(stdout);
+		console.log(fs.readFileSync("trace.txt", 'utf8'));
+	}
+	console.log("Running Python Check");
+	exec("python validtourcheck.py", puts);
+}
