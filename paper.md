@@ -3,26 +3,7 @@ AI Search
 ===================
 ##### cmkv68 - Durham University
 
-<!-- MarkdownTOC -->
-
-- Tourfile Generation
-	- Map Parser
-	- Tour Formatting
-- Utilities for our TSP Methods
-	- Supreme Tour Caching
-	- Path Generation
-	- Generation of Adjacent Path
-- A - Simulated Annealing
-	- Cooling Method
-	- Probablistic Path Switching
-- B - Genetic Algorithm
-	- Generation of Population
-	- Crossover
-	- Mutation Methods
-	- Results
-	- Methods of Experimentation
-
-<!-- /MarkdownTOC -->
+<!-- pandoc -o output.docx -f markdown -t docx paper.md -->
 
 # Tourfile Generation
 
@@ -32,25 +13,7 @@ The interpreter reads the dirty data files from `/cityfiles/*` and sanitizes it 
 
 	(32415786).
 
-An object is _map_ formed which comprises of a title, file location, number of cities, a matrix of the cities, the current best, raw data and raw positions. The object is then saved locally in `/data/*` in order save processing time as generating a matrix is expensive on resources.
-
-<!-- This is then fed to the two methods used: A - Simulated Annealing and B - Genetic Algorithms. Both methods will check for work in progress tours (results are cached accordingly); if there is then it will continue working on that; otherwise it will start from the beginning. -->
-
-## Tour Formatting
-
-There are several ways that the tour can be represented, such as binary represention (Someone), Matrix Representation, etc. I have chosen to store the tours in the Matrix representation, using arrays of arrays. This would allow us to traverse the tours quickly.
-
-	{  
-	    "matrix":[
-		    [0,"2","6","8","9","8","6","3"],
-		    ["2",0,"4","8","10","10","7","5"],
-		    ["6","4",0,"5","6","8","8","9"],
-		    ["8","8","5",0,"4","6","7","8"],
-		    ["9","10","6","4",0,"3","5","9"],
-		    ["8","10","8","6","3",0,"3","6"],
-		    ["6","7","8","7","5","3",0,"4"],
-		    ["3","5","9","8","9","6","4",0]]
-	}
+An object is _map_ formed which comprises of a title, file location, number of cities, a matrix of the cities, the current best, raw data and raw positions. The object is then saved locally in `/data/*` in order save processing time as generating a matrix is expensive on resources. I have chosen to store the tours using arrays of arrays. This would allow us to traverse the tours using simple notation.
 
 # Utilities for our TSP Methods
 
@@ -110,7 +73,7 @@ Below I conducted a test between the two mutation methods, in order to decide on
 
 The multiplier column represents how many laps of mutation the tour has gone through, where a multiplier of 2 means that the tour has undergone two mutations. The tour column represents the search-file the annealing algorithm is implemented on. 
 
-| Tour Method  | Multiplier | Tour | Result (Average Tour Length) |
+<!-- | Tour Method  | Multiplier | Tour | Result (Average Tour Length) |
 |--------------|------------|------|------------------------------|
 | Random       | 1          | 535  | 74129						  |
 | Random       | 2          | 535  | 80680						  |
@@ -123,7 +86,7 @@ The multiplier column represents how many laps of mutation the tour has gone thr
 | Random       | 1          | 042  | 1379						  |
 | Random       | 2          | 042  | 1344						  |
 | Neighbouring | 1          | 042  | 2290	 					  |
-| Neighbouring | 2          | 042  | 2132	 					  |
+| Neighbouring | 2          | 042  | 2132	 					  | -->
 
 Overall, the Random Mutation swap with a 1x multiplier performed the best, followed by the Random 2x. The neighbouring 1x performed last. This led to using the Random 1x swap being used in the final method. The case for more mutations detrimentally affecting the performance of the mutation may be related to the fact that the tour would deviate further from its tour direction. 
 
@@ -134,9 +97,11 @@ Overall, it has shown that the Random mutation method with a 1x multiplier has p
 
 # A - Simulated Annealing
 
-The simulated annealing method is a more deterministic model of the hill climbing algorithm. The introduction of randomness allows the method to escape local maximums, allowing it to have a better chance of finding a global maximum.
+<!-- The simulated annealing method is a more deterministic model of the hill climbing algorithm. The introduction of randomness allows the method to escape local maximums, allowing it to have a better chance of finding a global maximum.
+ -->
+The approach to simulated annealing is relatively simple. It models the process undergone by misplaced atoms in an object when heated; and slowly cooled down, attempting to find a global minimum of the tours. While this method will unlikely find the optimum solution, it can often find a very good solution.
 
-The approach to simulated annealing is relatively simple. It models the process undergone by misplaced atoms in an object when heated; and slowly cooled down, attempting to find a global minimum of the tours. While this method will unlikely find the optimum solution, it can often find a very good solution. A structured English algorithm for the Simulated Annealing TSP is described below:
+<!--  A structured English algorithm for the Simulated Annealing TSP is described below:
 	
 	- Initiate T (Temperature)
 	- Initiate Initial Tour
@@ -146,12 +111,42 @@ The approach to simulated annealing is relatively simple. It models the process 
 		- determine whether the path should be taken
 			- if the tour's path length is better then use that tour
 			- if it isn't, take it based on a probability.
-
-- Probablistic Methods
+ -->
+<!-- - Probablistic Methods
 multiple decisions have been chosen as there are two aspects of the annealing model that can be subject to probability:
 
 - the generation of the 'adjacent' path
-- the likelyhood of moving towards the new path
+- the likelyhood of moving towards the new path -->
+
+The initial implementation proved to create poor results.
+
+	Initial Implementation:
+		- Random Path Generation
+		- Random Neighbouring Path
+		- Cooling Method = T * alpha
+		- Path Switching
+			- if old/2 > new
+				a = 0.5
+			- if old/3 > new:
+				a = 0.3
+			- else:
+				a = 0
+			switch with probability a
+
+
+|  Intial | **Test** | **12** | **17** | **21** | **26** | **42** | **48** | **58** | **175** | **180** | **535** |
+|  ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
+|  Annealing | 28 | 68 | 2085 | 4255 | 1945 | 2356 | 35469 | 89216 | 45198 | 736040 | 148321 |
+
+## Experimentation
+
+## Initial Path Generation
+
+Decided to use Random Path Generation.
+
+## Generation of Neighbouring Path (Mutation)
+
+Decided to use 1x Random Mutation, as per results.
 
 ## Cooling Method
 
@@ -164,8 +159,7 @@ I have found that the cooling method has an insignificant factor in contributing
 
 Our cost functions will be the length of the generated tours.
 
-Possibly the most defining aspect of the annealing method, we may sometimes have to accept the worse tour as it may be the stepping stone that could get close to the global minima as opposed to staying in the local minima. The probability will depend on the value of T, the current temperature. 
-I have chosen the three methods as below as my probability function.
+Possibly the most defining aspect of the annealing method, we may sometimes have to accept the worse tour as it may be the stepping stone that could get close to the global minima as opposed to staying in the local minima. I have chosen the three methods as below as my probability function.
 
 	1. e^(lo - l1 / T)
 	2. e^(-lo / T)
@@ -185,31 +179,48 @@ Our genetic algorithm works as follows:
 	- The best child in the population will be the most favorite tour;
 	- repeat for as many generations as liked.
 
-## Generation of Population
+My initial implementation consisted of:
+	- randomly generated population for first generation
+	- population 10k, 10k generations
 
-Results from our utility factor will be here.
+	- two random parents chosen
+	- crossover
+		- split method
+	- neighbouring mutation
 
-## Crossover
+results have shown that this method has struggled, especially during the searchs with a larger number of cities.
+
+|  Intial | **Test** | **12** | **17** | **21** | **26** | **42** | **48** | **58** | **175** | **180** | **535** |
+|  ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
+|  Genetic | 28 | 72 | 2092 | 4243 | 1857 | 2289 | 35412 | 91341 | 44998 | 745530 | 151313 |
+
+## Experimentation
+
+### Generation of Population
+
+Using the results from the 
+
+### Crossover
 
 Crossover Takes a large factor in the process.
 
-### Choice of Parents
+#### Choice of Parents
 
-#### Random Choice
+##### Random Choice
 
 Parents are randomly chosen to crossover.
 
-#### Supreme Choice
+##### Supreme Choice
 
 This method chooses the best parents to crossover. 
 
-### Crossover Methods
+#### Crossover Methods
 
-#### PMX Method
+##### PMX Method
 
  Partially Mapped Crossover, (Goldberg & Lingle [1985]) has been theoried 
 
-#### Split Method
+##### Split Method
 
 - get the left half of one parent and the right half of the other parent
 - make a new child by merging the two together
@@ -222,11 +233,11 @@ computationally slower
 
 The split method has been chosen due to its effectiveness compared to the PMX approach.
 
-## Mutation Methods
+### Mutation Methods
 
 Similar to utility factor above.
 
-#### Neighbouring Mutation
+##### Neighbouring Mutation
 
 <!-- Full and clear descriptions of your implementations, focusing on 
 
@@ -254,18 +265,23 @@ any specific implementation details
 	// 			then current = successor
 	// 		else
 	// 			current = successor with probability e^(delta e/t)
-
-
 !-->
 
-## Results
+# Results
 
 <!-- A thorough (tabulated) description of your results so that you specify the lengths of the best tours obtained (of course, these lengths are witnessed by the tour-files that you have submitted). The better the tours you find, the better the marks. There are [6 marks] available as regards tour quality. -->
 
-| Method        | Test | 012 | 017  | 021  | 026  | 042  | 048   | 058   | 175   | 180    | 535   |
-|---------------|------|-----|------|------|------|------|-------|-------|-------|--------|-------|
-| A - Annealing | 28   | 56  | 1602 | 2972 | 1536 | 1343 | 16945 | 34237 | 26399 | 4310   | 70565 |
-| B - Genetic   | 28   | 56  | 1521 | 2676 | 1568 | 1545 | 18588 | 38899 | 22737 | 189123 | 57260 |
+|  Intial | **Test** | **12** | **17** | **21** | **26** | **42** | **48** | **58** | **175** | **180** | **535** |
+|  ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
+|  Annealing (i) | 28 | 68 | 2085 | 4255 | 1945 | 2356 | 35469 | 89216 | 45198 | 736040 | 148321 |
+|  Genetic (i) | 28 | 72 | 2092 | 4243 | 1857 | 2289 | 35412 | 91341 | 44998 | 745530 | 151313 |
+|  Annealing (m) | 28 | 56 | 1521 | 2972 | 1536 | 1343 | 16945 | 34237 | 26399 | 4310 | 70565 |
+|  Genetic (m) | 28 | 56 | 1444 | 2676 | 1568 | 1545 | 18588 | 38899 | 22737 | 189123 | 57260 |
+
+|  Intial | **Test** | **12** | **17** | **21** | **26** | **42** | **48** | **58** | **175** | **180** | **535** |
+|  ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
+|  Annealing | 0 | 17.65 | 27.05 | 30.15 | 21.03 | 43 | 52.23 | 61.62 | 41.59 | 99.41 | 52.42 |
+|  Genetic | 0 | 22.22 | 30.98 | 36.93 | 15.56 | 32.5 | 47.51 | 57.41 | 49.47 | 74.63 | 62.16 |
 
 There are cases where either method has shown to be greater. 
 
