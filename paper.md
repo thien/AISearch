@@ -60,8 +60,6 @@ In the event that a good tour per run has been found, that tour corresponding to
 
 ## Path Generation
 
-Several methods of Path generation are deduced, which may play a big factor in the quality of the tours. 
-
 ### Random Generation
 
 At the first generation, each member of the population is generated randomly; such that each member has a random sort of a numbers which represent the tours. A tour-length is generated based on tour. Issues related to this may include:
@@ -127,10 +125,7 @@ The multiplier column represents how many laps of mutation the tour has gone thr
 | Neighbouring | 1          | 042  | 2290	 					  |
 | Neighbouring | 2          | 042  | 2132	 					  |
 
-Overall, the Random Mutation swap with a 1x multiplier performed the best, followed by the Random 2x. The neighbouring 1x performed last. This led to using the Random 1x swap being used in the final method.
-
-The case for more mutations detrimentally affecting the performance of the mutation may be related to the fact that the tour would deviate further from its tour direction.
-The more dramatic the entropy, the 
+Overall, the Random Mutation swap with a 1x multiplier performed the best, followed by the Random 2x. The neighbouring 1x performed last. This led to using the Random 1x swap being used in the final method. The case for more mutations detrimentally affecting the performance of the mutation may be related to the fact that the tour would deviate further from its tour direction. 
 
 Issues that the results may face is generally based on the fact that the annealing algorithm is a deterministic method, leading to the contribution of randomness still having a large impact of the results, regardless of efforts to mitigate its factor in the results.
 
@@ -164,7 +159,6 @@ multiple decisions have been chosen as there are two aspects of the annealing mo
 	T = alpha * T (Kirkpatrick - psychicorigami simulated annealing)
 
 I have found that the cooling method has an insignificant factor in contributing to the effectiveness of the tour length.
-
 
 ## Probablistic Path Switching
 

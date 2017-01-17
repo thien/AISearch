@@ -22,12 +22,12 @@ LoadTourFile("cityfiles/AISearchfile017.txt", function(err, map) {
 	// console.log(map);
 	// console.log(map.title);
 	// console.log(map.size);
-	genetic.genetic(map, "B");
+	// genetic.genetic(map, "B");
 	// bfs.bfs(map.size, map.matrix, Math.round(Math.random() * map.size));
 	// genpmx.genetic(map, "B");
 	// anneal.annealing(map, "A");
 	// ConvertResultsIntoTxt();
-	// checkResults();
+	checkResults();
 });
 
 // cd /Volumes/Soodibus/Github/AISearch/ && node new_index.js
