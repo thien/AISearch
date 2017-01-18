@@ -1,0 +1,14 @@
+Why are only 4 pages allowed? Paraphrasing your work is an important skill, especially in industry. More often than not, you have a short period of time or a short document in order to get your ideas across as best you can. What is important is that you use the 4 pages to include salient and important data. The whole point of restricting the length is to give you practice at focussing your ideas and presenting yourself succinctly and cogently.
+
+• Full and clear descriptions of your implementations, focussing on implementation issues 
+
+(do not include your code in your report; focus on an _overview of how your implementation works_ and on any _specific implementation details_ such as `choice of data structures or data representation, use of probabilistic methods, `
+`technical aspects of specific algorithms such as crossover and mutation in a genetic algorithm, etc.).`
+
+ There are [4 marks] available for a ‘more involved’ algorithm and [2 marks] available for an easier algorithm. So, there are potentially [8 marks] available concerning your implementations.
+
+• A thorough (tabulated) description of your results so that you specify the lengths of the best tours obtained (of course, these lengths are witnessed by the tour-files that you have submitted). The better the tours you find, the better the marks. There are [6 marks] available as regards tour quality.
+
+• Details of your experiences with your implementations and the finetuning and experimentation that you undertook in order to try and improve performance. There are [6 marks] available as regards experimentation. 
+
+neighbouring, random, partial shuffle
