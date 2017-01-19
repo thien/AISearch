@@ -5,7 +5,7 @@ AI Search
 
 <!-- pandoc -o output.docx -f markdown -t docx paper.md -->
 
-# A - Simulated Annealing
+# TourfileA - Simulated Annealing
 <!-- 
 // PSEUDOCODE
 
@@ -22,9 +22,7 @@ AI Search
 // 		else
 // 			current = successor with probability e^(delta e/t) -->
 
-The approach to simulated annealing is relatively simple. It models the process undergone by misplaced atoms in an object when heated; and slowly cooled down, attempting to find a global minimum of the tours. While this method will unlikely find the optimum solution, it can often find a very good solution. The states will be the tours themselves, and our cost functions will be the length of the generated tours.
-
-The initial implementation proved to create poor results. It consisted of setting alpha `a = 0.9` and temperature `T = 2000` variables. This was followed by generating an initial state (our path) randomly. A while loop is then used where a possible successor state is generated using a 1x mutation. The tourlengths of the states are compared, width the initial state being replaced with the successor if its tour length is better, otherwise it will be replaced by probability. The probability `a` is deduced as so:
+The initial implementation consisted of setting alpha `a = 0.9` and temperature `T = 2000` variables. This was followed by generating an initial state (our path) randomly. A while loop is then used where a possible successor state is generated using a 1x mutation. The tourlengths of the states are compared, with the initial state being replaced with the successor if its tour length is better, otherwise it will switch dependent on our probablistic approach. The probability `a` is deduced as so:
 
 	- if initial/2 > possible_sucessor
 		a = 0.5
@@ -41,7 +39,7 @@ The initial implementation proved to create poor results. It consisted of settin
 
 ## Experimentation
 
-The initial path generation remained random. This was kept in order to reduce possibilities of leading towards a local maximum. I decided to keep the 1x Random __generation of Neighbouring Path (Mutation)__, as my results have shown that it has performed the best.
+The initial path generation remained random. This was kept to reduce possibilities of leading towards a local maximum. I decided to keep the 1x Random __generation of Neighbouring Path (Mutation)__, as my results have shown that it has performed the best.
 
 ### Cooling Method
 
@@ -49,17 +47,17 @@ My initial method revolved around the formula `T = a * T`, where Alpha `a < 1`. 
 
 ### Probablistic Path Switching
 
-As this is possibly the most defining aspect of the annealing method; It allows the states to escape a local minima, an issue with the hill climbing algorithm. I have experimented with the three methods as below as my probability function.
+Probability allows the states to escape a local minima, an issue with the hill climbing algorithm. I have experimented with the three methods as below as my probability function.
 
 	1. Primitive (described in the initial run.)
 	2. e^(-lo / T)
 	3. e^(lo - l1 / T)
 
-These formulas all decrease proportional to the number of steps incremented already. They grow in an exponential fashion, in order to simulate the temperature of a object cooling. The cooler the object, the less likely we will take the neighbouring tour. With experimentation, I have chosen to go forward with 3. `e^(lo - l1 / T)`.
+These formulas all grow proportionally to the number of steps incremented already. They grow in an exponential fashion to simulate the temperature of a object cooling. The cooler the object, the less likely we will take the neighbouring tour. With experimentation, I have chosen to go forward with 3. `e^(lo - l1 / T)` as my experiments have shown greater improvements amongst the other two formulae.
 
----------------------------------------------------------------------------
+------------------------------------------------------------------------
 
-# B - Genetic Algorithm
+# TourfileB - Genetic Algorithm
 
 <!-- Our genetic algorithm works as follows:
 
@@ -69,18 +67,9 @@ These formulas all decrease proportional to the number of steps incremented alre
 	- with N amount of children generated, this will be the new population
 	- The best child in the population will be the most favorite tour;
 	- repeat for as many generations as liked.
-
  -->
- My initial implementation consisted of:
 
- 	- population size of 10,000, 100,000 generations.
-	- randomly generated population for first generation
-	- every generation:
-		- two random parents chosen
-		- crossover
-			- split method
-		- neighbouring mutation
-		- offspring added to the population for the next generation.
+ My initial implementation worked by initiating a population size of 10,000, 100,000 generations. Each member of the population is a tour, where each tour is randomly generated for the first generation. Cycling through all the generations, two random parents are chosen to crossover using the split method, where half of one parent's tour is merged with half of the other parents tour. Duplicates and missing cities in the offspring are added randomly. Mutation occured depending on probability, where the child tour would have a randomly chosen city's position `N` would be switched with it's `N+1` position. The offspring added to the population for the next generation. Offsprings were kept being created until the population size was met. The best offspring of the generation was kept as the supreme. After all generations were lapped, the supreme from the last generation is used for the tour to be outputted as a file.
 
 The initial implementation produced the following results.
 
@@ -90,13 +79,13 @@ The initial implementation produced the following results.
 
 ## Experimentation
 
-I have chosen to keep the population and generation size unchanged, in order for us to fairly check improvements between the initial implementation and the adjusted. The Mutation method has been chosen to be random 1x, as it performed the best in my testing.
+I have chosen to keep the population and generation size unchanged, in order for us to check improvements between the initial implementation and the adjusted. The Mutation method has been chosen to be random 1x, as it performed the best in my testing.
 
 ### Generation of Population
 
-Several methods have been tried, such as mutating the cached supreme tour, and greedy. I found issues with the Supreme tour where the success of the algorithm is heavilly dependent on the RNG (Random Number Generator) taking the tour out of a possible local minima. 
+Several methods have been tested, such as mutating the cached supreme tour, and greedy. I found issues with the Supreme tour where the success of the algorithm is dependent on the RNG (Random Number Generator) taking the tour out of a possible local minima. 
 
-I initially started with loading cached data from the results, but this faced issues as the results would tend towards a local maximum. Random generation was used again until I considered using a best-first greedy algorithm to generate the children. This dramatically improved results for most of the tours, but it lacked sufficent entropy to escape issues related to escaping more local maximums. Introducing mutation after the greedy tours were produced assisted in escaping the local cap.
+I started with loading cached data from the results, but this faced issues as the results would tend towards a local maximum. Random generation was used again until I used a best-first greedy algorithm to generate the children. This improved results for most of the tours, but it lacked entropy to escape issues related to escaping more local maximums. Introducing mutation after the greedy tours were produced assisted in escaping the local cap.
 
 #### Choice of Parents (Pre Crossover)
 
@@ -104,9 +93,7 @@ I have attempted two methods of choice for choosing Parents, including my initia
 
 ### Crossover Methods
 
-Several crossover methods have been tried, but the most successful methods I found were the _Split Method_ and _Partially Mapped Crossover_ (Goldberg & Lingle 1985). I performed tests between the two and found that the split method has shwon to be the most effective approach. 
-
-__Split Method__ - The parents are split equally such that the left half of one parent's tours is merged with the right half of the other parents. Duplicate and missing tours are then managed after, before sending it off for an offspring. Missing tours are added in a random order. 
+Several crossover methods have been tried, but the most successful methods I found were the _Split Method_ and _Partially Mapped Crossover_ (Goldberg & Lingle 1985). I performed tests between the two and found that the split method has shown to be the most effective approach. 
 
 # Utilities for our TSP Methods
 
@@ -117,11 +104,14 @@ __Supreme Tour Caching__ : In the event that a good tour been discovered, the to
 ## Mutation Techniques
 
 __Neighbouring Mutation__ - A neighbouring mutation is produced by finding a random position `N` within the path and switching its position with the city `N+1`. For example, if city `2` was chosen in the tour `1,2,3,4,5,6,7,8`, then the mutation would return `1,3,2,4,5,6,7,8`. If the city chosen is the last city in the list, then it would be replaced with the first city in the list.
+
 __Random Mutation__ - Random mutation is produced by finding two random positions in the path and switching their positions with each other; for example in the tour `1,2,3,4,5,6,7,8`, a Random Number Generator is used to get the cities `2`, and `6`. These two cities are swapped leading to the tour path `1,6,3,4,5,2,7,8`. 
+
 __Partial Shuffle Mutation [1]__ - Integers are swapped randomly between two randomly generated positions. All integers between the first and the second offset are swapped randomly.
+
 The mutation methods were tested against the tours, `AISearchfile042`, `AISearchfile175` and `AISearchfile535`. The test will use the same path switching method, and the results would be the average of 5 Simulated Annealing runs, in order to reduce the significance that entropy applies to the mutation methods.
 
-Overall, the Random Mutation swap with a 1x multiplier performed the best, followed by the Random 2x. The neighbouring 1x performed last. This led to using the Random 1x swap being used in the final method. The case for more mutations detrimentally affecting the performance of the mutation may be related to the fact that the tour would deviate further from its tour direction. 
+Overall, the Random Mutation swap with a 1x multiplier performed the best, followed by the Random 2x. The neighbouring 1x performed last. This led to using the Random 1x swap being used in both throughout annealing and genetic algorithms. The case for more mutations detrimentally affecting the performance of the mutation may be related to the fact that the tour would deviate further from its tour direction.
 
 ## Path Generation
 
@@ -129,16 +119,11 @@ Overall, the Random Mutation swap with a 1x multiplier performed the best, follo
 
 __Supreme Mutatation Generation__ - In the event that a supreme tour is saved locally, it is used as a reference 
 
-__Greedy Generation__ - method I have considered is to generate each member of the population by a basic greedy closest neighboring algorithm. This would allow us to ensure that the starting population will start with a relatively good results. There may be several issues related to this:
+__Greedy Generation__ - method I have considered is to generate each member of the population by a basic greedy closest neighboring algorithm. This would allow us to ensure that the starting population will start with a relatively good results. It is more computationally expensive to produce, and may result in a local maximum.
 
-- More computationally expensive to produce
-- May result in a local maximum
+__Greedy Generation & Mutation__ - This is similar with the Greedy Mutation, but with the added option of each tour being faced with the possibility of Mutation. This is more computationally expensive to produce than Greedy alone, and also reliant on the Mutation Rate.
 
-__Greedy Generation & Mutation__ - This is similar with the Greedy Mutation, but with the added option of each tour being faced with the possibility of Mutation. This 
-
-- More computationally expensive to produce than Greedy alone
-- Reliant on the Mutation Rate
-
+Each generation option has their own merits but I have chosen to keep the random generation for Annealing and Greedy Generation & Mutation for the Genetic Algorithm.
 
 # Results
 
@@ -149,13 +134,20 @@ __Greedy Generation & Mutation__ - This is similar with the Greedy Mutation, but
 |  Annealing (m) | 28 | 56 | 1521 | 2972 | 1536 | 1343 | 16945 | 34237 | 26399 | 4310 | 70565 |
 |  Genetic (m) | 28 | 56 | 1444 | 2676 | 1568 | 1545 | 18588 | 38899 | 22737 | 189123 | 57260 |
 
-I have found that the nearest neighbour approach has dramatically affected the genetic's performance in the 180 Cities tourfile. 
+I have found that the nearest neighbour approach has dramatically affected the genetic's performance in the 180 Cities tourfile. This may be related to how the tour was set up, where a basic greedy best first approach might not be appropiate in this case.
 
 |  Tours | Test | 12 | 17 | 21 | 26 | 42 | 48 | 58 | 175 | 180 | 535 |
 |  ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
 |  Annealing | 0 | 17.65 | 27.05 | 30.15 | 21.03 | 43 | 52.23 | 61.62 | 41.59 | 99.41 | 52.42 |
 |  Genetic | 0 | 22.22 | 30.98 | 36.93 | 15.56 | 32.5 | 47.51 | 57.41 | 49.47 | 74.63 | 62.16 |
 
+| Tourfile        | Test | 12   | 17   | 21   | 26   | 42   | 48    | 58    | 175   | 180  | 535   |
+|-----------------|------|------|------|------|------|------|-------|-------|-------|------|-------|
+| Best Tourlength | 28   | 56   | 1444 | 2676 | 1536 | 1343 | 16945 | 34237 | 22737 | 4310 | 57260 |
+| Best Performer  | Ann. | Ann. | GA   | GA   | Ann. | Ann. | Ann.  | Ann.  | GA    | Ann. | GA    |
+
+
+Overall, experimentations on the implementations have shown to assist greatly with the results. 
 
 <!-- Details of your experiences with your implementations and the fine- tuning and experimentation that you undertook in order to try and improve performance. There are [6 marks] available as regards exper- imentation. -->
 
@@ -163,7 +155,7 @@ I have found that the nearest neighbour approach has dramatically affected the g
 ## References
 
 [1]. Syberfeldt, A., Gustavsson, P., Svantesson, J., Almgren, T. (2014)
-"A Case Study of Evolutionary Simulation Based Optimization in Aircraft Engine Manufacturing" In: Industrial Simulation Conference, Skövde, June 11-13, 2014
+"A Case Study of Evolutionary Simulation Based Optimization in Aircraft Engine Manufacturing" In: Industrial Simulation Conference, Skövde, June 11-13, 2014
 
 [2]. Goldberg, D.E., and R. Lingle. “Alleles, Loci, and the Traveling Salesman Problem.”
 Proceedings of the First International Conference on Genetic Algorithms and Their Application, edited by Grefenstette J., Lawrence Erlbaum Associates, Hillsdale, NJ, 1985, pp. 154-159.
