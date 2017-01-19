@@ -87,7 +87,11 @@ module.exports.annealing = function(map, letter) {
 		if (currentpath.toursize < supreme.tourlength) {
 			supreme.tour = currentpath.tour;
 			supreme.tourlength = currentpath.toursize;
+			// for (var i = 0; i < supreme.tour.length; i++){
+			// 	supreme.tour[i] += 1;
+			// }
 			console.log("New Supreme: " + supreme.tourlength + " - " + supreme.tour);
+			supreme.method = "annealing";
 			bf.savePosition(supreme,letter);
 		}
 	}

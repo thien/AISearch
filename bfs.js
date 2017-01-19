@@ -30,11 +30,12 @@ closestNeighbour = function(current_city, travelled_cities, matrix, done){
 		// check if city has not been traversed
 		if (travelled_cities.includes(i) == false){
 			// check if this is the smallest value
-			if (matrix[current_city][i] < closest_value){
+			if (matrix[current_city][i] <= closest_value){
 				closest_city = i;
 				closest_value = matrix[current_city][i]
 			}
 		}
 	}
+	// console.log("closest_city", closest_city, "closest value", closest_value)
 	done(closest_city);
 }

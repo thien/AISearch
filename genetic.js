@@ -7,7 +7,7 @@ module.exports.genetic = function(map, letter) {
     var properties = {
         "map": map,
         "mutation_rate": 0.2,
-        "population_size": 1000,
+        "population_size": 10000,
         "population": [], // randomly generated initial population
         "generations": 100000
     }
@@ -81,6 +81,7 @@ module.exports.genetic = function(map, letter) {
                     supreme.tour = z.tour;
                     supreme.tourlength = z.size;
                     console.log("Generation: " + i + " New Supreme: " + supreme.tourlength + " - " + supreme.tour);
+                    supreme.method = "genetic";
                     bf.savePosition(supreme, letter);
                     // properties.map.writeFile(0, supreme.size, supreme.tour);
                     // console.log("ww");
@@ -101,6 +102,7 @@ module.exports.genetic = function(map, letter) {
         }
         console.log("MASTER: " + supreme.tourlength + " " + supreme.tour);
         console.log("22");
+        supreme.method = "genetic";
         bf.savePosition(supreme, letter);
         // properties.map.writeFile(0, supreme.size, supreme.tour);
     }

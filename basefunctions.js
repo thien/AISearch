@@ -63,7 +63,8 @@ module.exports.checkmissing = function(x, map) {
 }
 module.exports.savePosition = function(tourdata, letter) {
     var output = "";
-    var loc = "cmkv68/TourFile" + letter + "/";
+    var user = "cmkv68/"
+    var loc = user + "Tourfile" + letter + "/";
     var filename = "tour" + tourdata.title + ".json";
     var location = loc + filename;
     // console.log("Writing to file...");
@@ -76,13 +77,31 @@ module.exports.savePosition = function(tourdata, letter) {
     // output += tourdata.tour.toString() + '\n';
 
     output = JSON.stringify(tourdata);
+    if (!fs.existsSync(user)){
+        fs.mkdirSync(user);
 
-    fs.writeFileSync(location, output);
+        if (!fs.existsSync(loc)){
+            fs.mkdirSync(loc);
+            fs.writeFileSync(location, output);
+        }
+        else {
+            fs.writeFileSync(location, output);
+        }
+    } else {
+        if (!fs.existsSync(loc)){
+            fs.mkdirSync(loc);
+            fs.writeFileSync(location, output);
+        }
+        else {
+            fs.writeFileSync(location, output);
+        }
+    }
+    // fs.writeFileSync(location, output);
     console.log("File written to " + location);
 }
 
 module.exports.loadPosition = function(letter, map) {
-    var loc = "cmkv68/TourFile" + letter + "/tour" + map.title + ".json";
+    var loc = "cmkv68/Tourfile" + letter + "/tour" + map.title + ".json";
     try {
         fs.accessSync(loc);
         // it exists
@@ -169,6 +188,7 @@ module.exports.sortByPedigree = function(array) {
 }
 
 module.exports.convertResultTxt = function(file){
+    // console.log("file:", file)
 	if (file.includes(".json")){
 		try {
 	        fs.accessSync(file);
@@ -183,11 +203,18 @@ module.exports.convertResultTxt = function(file){
 	        text_document += "NAME = " + data.title + ",\n";
 	        text_document += "TOURSIZE = " + data.toursize + ",\n";
 	        text_document += "LENGTH = " + data.tourlength + ",\n";
-	        for (var i in data.tour){
-	        	data.tour[i] += 1;
-	        }
-	        text_document += data.tour.toString()
-	        fs.writeFileSync(file_location, text_document);
+            if (data.method == "annealing"){
+                for (var i in data.tour){
+                    data.tour[i] += 1;
+                }
+                text_document += data.tour.toString()
+                fs.writeFileSync(file_location, text_document);
+            } else {
+                text_document += data.tour.toString()
+                fs.writeFileSync(file_location, text_document);
+            }
+	        // text_document += data.tour.toString()
+	        // fs.writeFileSync(file_location, text_document);
 	    } catch (e) {
 	        // doesn't exist.
 	        console.log(e);
