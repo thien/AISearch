@@ -18,10 +18,11 @@ var bf = require('./basefunctions.js');
 
 module.exports.annealing = function(map, letter) {
 	// base variables
+	// mutation rate is 1 - mutationrate; 0.01 is 99.9% mutation rate.
 	var properties = {
 		"map": map,
 		"T": 2000,
-		"mutationrate": 0,
+		"mutationrate": 0.01,
 		"alpha": 900
 	}
 	// initiate a supreme from a local file (saved prior)
