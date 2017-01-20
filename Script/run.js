@@ -12,6 +12,8 @@ var brute 	= require('./brute.js');
 var genpmx 	= require('./test/genetic-pmx.js');
 var bfs 	= require('./bfs.js');
 
+// to run, write in the terminal:
+// npm install && node run.js
 
 tf.LoadTourFile("cityfiles/AISearchfile012.txt", function(err, map) {
 // LoadTourFile("cityfiles/AISearchfile017.txt", function(err, map) {
