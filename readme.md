@@ -1,7 +1,6 @@
 
 AI Search
 ===================
-##### _cmkv68 - Durham University_
 
 <!-- pandoc -o output.docx -f markdown -t docx paper.md -->
 <!-- pandoc paper.md --latex-engine=xelatex -o paper.pdf -->
